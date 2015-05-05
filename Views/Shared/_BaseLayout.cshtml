@@ -1,0 +1,163 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>@ViewBag.Title</title>
+    <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    @Styles.Render(string.Format("~/css/{0}/bootstrap.css", GuestService.Code.HttpPreferences.Current.VisualTheme))  
+    @Styles.Render("~/css/datepicker.css")
+
+      @Styles.Render("~/css/keyboard.css")
+      @Styles.Render("~/css/jquery-ui.min.css")
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>      
+          @Scripts.Render("~/js/html5shiv.js")
+          @Scripts.Render("~/js/respond.js")      
+
+     
+         
+    <![endif]-->
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+      @Scripts.Render("~/js/jquery-1.9.1.js")
+      @Scripts.Render("~/js/jquery.keyboard.js")
+
+    <script type="text/javascript">
+        var baseimageurl = '@Url.Content("~/images/")';  
+    </script>
+      <style>
+         nav.navbar
+         {
+                position: fixed;
+                width: 100%;
+                z-index: 100; 
+          }
+      </style>
+
+      <script>
+             var time = new Date().getTime();
+
+             $(document).ready(function () {
+
+                 $(document.body).keypress(function (e) {
+                     time = new Date().getTime();
+                 });
+                 $(document.body).mousemove(function (e) {
+                     time = new Date().getTime();
+                 });
+
+                 function refresh() {
+                     if (new Date().getTime() - time >= 60000)
+                         window.location.href = '@Url.Action("index", "excursion")';
+                     else
+                         setTimeout(refresh, 10000);
+                 }
+
+                 setTimeout(refresh, 10000);
+
+               
+                 $('#Form_CustomerEmail, #Form_CustomerName, #Form_CustomerMobile').focus(function () {
+                     
+                     $("#" + $(this).attr('id') + "_keyboard").css('top', Math.round($(this).offset().top) + 'px');
+                     $("#" + $(this).attr('id') + "_keyboard").css('left', Math.round($(this).offset().left) + 'px');
+                     $("#" + $(this).attr('id') + "_keyboard").css('width', $(this).outerWidth());
+
+
+                     $('html, body').animate({
+                         scrollTop: $("#" + $(this).attr('id')).offset().top
+                     }, 2000);
+                 });
+             });
+
+          var init = function () {
+            
+              var keyboard_params = {
+                  position:{top:50, left:10},
+                  display: {
+                      'bksp': '\u2190 Bksp',
+                      //'enter'  : 'return',
+                      //	'default': 'ABC',
+                      //	'meta1'  : '.?123',
+                      //	'meta2'  : '#+=',
+                      'accept': 'accept'
+                  },
+
+                  layout: 'custom',
+                  customLayout: {
+                      /*'default': [
+                          '1 2 3 4 5 6 7 8 9 0 {bksp}',
+                          'q w e r t y u i o p ',
+                          'a s d f g h j k l {accept}',
+                          '{s} z x c v b n m \u0040 . {s}',
+                          '{space} _ - '
+                      ],*/
+                      'default': [
+                          '1 2 3 4 5 6 7 8 9 0 {bksp}',
+                          'Q W E R T Y U I O P',
+                          'A S D F G H J K L ',
+                          'Z X C V B N M \u0040 . _ -',
+                          '{space} {accept}'
+                      ]
+                  }
+
+              };
+
+              $('#Form_CustomerEmail, #Form_CustomerName, #Form_CustomerMobile').keyboard(keyboard_params).removeClass("ui-widget-content");
+
+              /*$('#Form_CustomerName').keyboard(keyboard_params);
+
+              $('#Form_CustomerMobile').keyboard(keyboard_params);*/
+          };
+
+          setTimeout(init, 100);
+
+
+          function printIt(printThis) {
+              var win = window.open();
+              self.focus();
+              win.document.open();
+              win.document.write('<' + 'html' + '><' + 'body' + '>');
+              win.document.write(printThis);
+              win.document.write('<' + '/body' + '><' + '/html' + '>');
+              win.document.close();
+              win.print();
+              win.close();
+          }
+
+      </script>
+    
+    @RenderSection("head_styles", required: false)
+    @RenderSection("head_scripts", required: false)
+  </head>
+  <body>  
+  
+     
+     
+    
+    @{ Html.RenderAction("PageSuperHeader", "customization"); }
+    @{ Html.RenderPartial(@"Controls\NavLanguageLogout"); }
+    @{ Html.RenderAction("PageSubHeader", "customization"); }
+    <div class="bk-container">
+        @RenderBody()        
+    </div>
+    @Scripts.Render("~/js/bootstrap.min.js")  
+    @RenderSection("scripts", required: false)     
+    <div class="container bk-footer">        
+        <div class="row">
+            <div class="col-lg-12">
+                <hr style="margin-bottom: 10px; margin-top:30px;"/>   
+                @{ Html.RenderAction("PageFooter", "customization"); }
+            </div>   
+        </div>
+
+    </div>
+
+    
+  </body>
+</html>
