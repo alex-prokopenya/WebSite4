@@ -57,7 +57,7 @@
         textSelected: 'dd<br/>MM yyyy',
         useBootstrap2: false,
         width: 0,
-        startDate: moment(new Date(-8640000000000000)),
+        startDate: moment(new Date()),
         startDateFormat: 'yyyy-mm-dd',
         endDate: moment(new Date(8640000000000000)),
         endDateFormat: 'yyyy-mm-dd',
@@ -279,6 +279,8 @@
             }
             this.$wrapper.append($(self._template.listItem).append(this.$leftNav));
 
+
+
             // Items
             $.each(data.items, function (id, item) {                
                 var $a = $(self._template.dateItem)
@@ -292,6 +294,8 @@
                 if (item.isSelected && self.options.highlightSelectedDate) {
                     $a.addClass('dp-selected');
                 }
+
+
                 if (item.isToday && self.options.highlightToday && (!item.isStopSale && !item.allClosed)) {
                     $a.addClass('dp-today');
                 }

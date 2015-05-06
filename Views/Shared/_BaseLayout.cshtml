@@ -38,6 +38,10 @@
                 width: 100%;
                 z-index: 100; 
           }
+          .dp-no-select {
+              background:#efefef!important;
+              color:#ccc!important
+          }
       </style>
 
       <script>
@@ -81,22 +85,12 @@
                   position:{top:50, left:10},
                   display: {
                       'bksp': '\u2190 Bksp',
-                      //'enter'  : 'return',
-                      //	'default': 'ABC',
-                      //	'meta1'  : '.?123',
-                      //	'meta2'  : '#+=',
                       'accept': 'accept'
                   },
 
                   layout: 'custom',
                   customLayout: {
-                      /*'default': [
-                          '1 2 3 4 5 6 7 8 9 0 {bksp}',
-                          'q w e r t y u i o p ',
-                          'a s d f g h j k l {accept}',
-                          '{s} z x c v b n m \u0040 . {s}',
-                          '{space} _ - '
-                      ],*/
+                     
                       'default': [
                           '1 2 3 4 5 6 7 8 9 0 {bksp}',
                           'Q W E R T Y U I O P',
@@ -109,10 +103,8 @@
               };
 
               $('#Form_CustomerEmail, #Form_CustomerName, #Form_CustomerMobile').keyboard(keyboard_params).removeClass("ui-widget-content");
+              $('#Form_CustomerEmail, #Form_CustomerName, #Form_CustomerMobile').keyboard(keyboard_params).removeClass("ui-widget-content");
 
-              /*$('#Form_CustomerName').keyboard(keyboard_params);
-
-              $('#Form_CustomerMobile').keyboard(keyboard_params);*/
           };
 
           setTimeout(init, 100);
@@ -136,9 +128,6 @@
     @RenderSection("head_scripts", required: false)
   </head>
   <body>  
-  
-     
-     
     
     @{ Html.RenderAction("PageSuperHeader", "customization"); }
     @{ Html.RenderPartial(@"Controls\NavLanguageLogout"); }
@@ -158,6 +147,6 @@
 
     </div>
 
-    
+      <input type="button" value="Back" onclick="history.go(-1);">
   </body>
 </html>
