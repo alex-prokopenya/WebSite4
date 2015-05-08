@@ -111,24 +111,33 @@
                                                     }
                                                     else if ((paymentMode.processing ?? "").ToLowerInvariant() == "bank")
                                                     {
-                                                        <br /><a href="#" onclick="$(this).closest('form').submit()" style="font-weight:bold;">@PaymentStrings.ResourceManager.Get("PaymentBankBill")</a>
+                                                        <br /><a href="#" onclick="$('#receiption').fadeToggle(200)" style="font-weight:bold;">@PaymentStrings.ResourceManager.Get("PaymentBankBill")</a>
                                                     }
                                                     else if ((paymentMode.processing ?? "").ToLowerInvariant() == "uniteller")
                                                     {
                                                         <br /><a href="#" onclick="$(this).closest('form').submit()" style="font-weight:bold;">@PaymentStrings.ResourceManager.Get("PaymentPayButton")</a>
                                                     }                                           
                                                 </div>
-                                            </div>
-                                                                              
+                                            </div>                        
                                         </div>  
-                                    </div>                         
+                                    </div>
+                                    if ((paymentMode.processing ?? "").ToLowerInvariant() == "bank")
+                                    {
+                                        <div id="receiption" style="display:none; max-width:500px; height:200px; margin-left:0px; margin:20px; padding-left:0px; padding:20px; border:1px solid grey;">
+
+                                            <h4>some header</h4>
+                                            <p>some text about reception some text about reception some text about reception some text about reception some text about reception some text about reception some text about reception </p>
+                                            
+                                            <input type="button" value="print order" onclick="printIt($('#receipt').html())" />
+                                        </div>
+                                    }
                                 }
                             }
                         }
                     }
                 }
                 </div>
-                <input type="button" value="print order" onclick="printIt($("#receipt").html())">
+                
     }
     else
     {
