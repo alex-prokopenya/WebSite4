@@ -1,6 +1,8 @@
 ﻿@model GuestService.Models.Payment.PaymentContext
 
 @{
+    var lang = Sm.System.Mvc.Language.UrlLanguage.CurrentLanguage;
+
     ViewBag.Title = PaymentStrings.ResourceManager.Get("PaymentTitle");
 }
 <div class="container">    
@@ -10,38 +12,78 @@
             @if (GuestService.Settings.IsShowBreadCrumb)
             {
             <ol class="breadcrumb">          
-                <li><a href="@Context.Request.ApplicationPath.ToString()">@PaymentStrings.ResourceManager.Get("PaymentGuestService")</a></li>
+              	<li class="eb_link"><a href="@Url.Action("index", "excursion")">@ExcursionStrings.ResourceManager.Get("Title")</a></li>
                 <li class="active">@ViewBag.Title</li>
             </ol>
             }
-        </div>                      
-
+        </div>     
+  
         @if (Model.Reservation != null && Model.Reservation.claimId != null)
         {
-            <div class="col-lg-12" id="receipt">  
-                <div class="form-inline">
-                    <div class="form-group" style="vertical-align: baseline;">
-                        <h4 style="color:#b7b7b7;">@PaymentStrings.ResourceManager.Get("PaymentOrderTitle")</h4>
-                    </div>
-                    <div class="form-group" style="vertical-align: baseline;">
-                    <h2 class="media-heading" style="color: #777777;">@Model.Reservation.claimId</h2>                     
-                    </div>
-                </div>
-            </div>
+			<div id='receipt1' >
+				<div class="col-lg-12"> 
+					<font face="Segoe UI" size="2">
+					<div class="media" style="margin-bottom: 0px;">
+						<span class="pull-left">
+							<img class="media-object" alt="EXGO.COM" src="/guestservice_dev/images/exgo_logo.png"></img>
+						</span>
+						<div class="media-body"><font size="1">Tel. No: 70-0000-01<br />TIC. No: 12126117B<br />VAT No: 10126117Z</font></div>
+					</div>
+					<div class="form-inline">
+						<div class="form-group" style="vertical-align: baseline;">
+							<h4>VOUCHER</h4>          
+							<div>Booking #
+													@Model.Reservation.claimId           </div>          
+						</div>
+						 <br />Status: @Model.Reservation.status.description
+						 <br />Customer name: @Model.Reservation.customer.name
+						 <br />Customer address: @Model.Reservation.customer.address
+						 <br />Agency: @Model.Reservation.agent
+						 <br />Timelimit: @Model.Reservation.timelimit.ToString("yyyy.MM.dd HH:mm")
+					</div>
+					</font>
+
+				</div>
+			
+				<div class="col-lg-12">
+				@if (Model.Reservation.orders != null)
+				{
+					foreach (var order in Model.Reservation.orders)
+					{
+						if (order.status != null && order.status.id == 1)
+						{
+							Html.RenderPartial("Controls\\ReservationOrder", order);
+						}
+					}
+				}
+				</div>
+		</div>
             if (Model.Reservation.action != null && Model.Reservation.action.canshowprice == true)
             {
+		<div id='receipt2'>
+			<font face="Segoe UI" size="2">
                 <div class="col-lg-6">     
-                    <h3 class="panel-title price" style="font-size: 2em;">
-                        <span style="color:#b7b7b7;">@PaymentStrings.ResourceManager.Get("PaymentTotal")</span>        
-                        <span style="color:#777777;">@Model.Reservation.price.total.ToString("### ### ### ##0.00") @Model.Reservation.price.currency</span>
-                    </h3>
+                    <div>
+                        <span>@PaymentStrings.ResourceManager.Get("PaymentTotal")</span>        
+                        <span>@Model.Reservation.price.total.ToString("### ### ### ##0.00") @Model.Reservation.price.currency</span>
+                    </div>
                 </div>
                 <div class="col-lg-6">  
-                    <h3 class="panel-title price" style="font-size: 2em;">
-                        <span style="color:#b7b7b7;">@PaymentStrings.ResourceManager.Get("PaymentToPay")</span>       
-                        <span style="color:#777777;">@Model.Reservation.price.topay.ToString("### ### ### ##0.00") @Model.Reservation.price.currency</span>
-                    </h3>  
+                    <div>
+                        <span>@PaymentStrings.ResourceManager.Get("PaymentToPay")</span>       
+                        <span>@Model.Reservation.price.topay.ToString("### ### ### ##0.00") @Model.Reservation.price.currency</span>
+                    </div>  
                 </div>
+			</font>
+	</div>
+		 <div class="col-lg-6" id="receipt3" >
+				<font face="Segoe UI" size="2">
+					Thank you for booking with EXGO.COM
+                    <br /> <font size="1">@DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")</font>
+					<br />
+				</font>
+          </div>
+
                 <div class="clearfix" style="margin-bottom:20px;"></div>	
                 <div class="col-lg-12">  
 
@@ -51,7 +93,7 @@
                     if (Model.Reservation != null && Model.Reservation.action != null && Model.Reservation.action.canprintvoucher == true)
                     {
                         <div>
-                            <a class="btn btn-large btn-primary" href="@Url.Action("printorder", "guest", new { id = Model.Reservation.claimId })">@GuestStrings.ResourceManager.Get("PrintVoucherButton")</a>
+                          	<input type="button" value="@(lang=="ru"?"Печать":"Print")" onclick="printIt($('#receipt1').html() + $('#receipt2').html()+ $('#receipt3').html())">
                         </div>  
                     }
                 }
@@ -81,17 +123,25 @@
                                         <div class="media" style="margin-bottom: 15px;">
                                             <span class="pull-left" >
                                                 @if ((paymentMode.processing ?? "").ToLowerInvariant() == "paypal")
-                                                {
+                                                { <a href="#" onclick="$('#overlay').show();$(this).closest('form').submit()">
                                                     <img class="media-object" src="@Url.Content("~/images/paypal.png")" alt="@paymentMode.name" />
+												  </a>
                                                 }
                                                 else if ((paymentMode.processing ?? "").ToLowerInvariant() == "bank")
-                                                {
+                                                { <a href="#" onclick="$('#cache-block').toggle(200)">
                                                     <img class="media-object" src="@Url.Content("~/images/bank.png")" alt="@paymentMode.name" />
+												  </a>
                                                 }
                                                 else if ((paymentMode.processing ?? "").ToLowerInvariant() == "uniteller")
-                                                {
+                                                { <a href="#" onclick="$('#overlay').show();$(this).closest('form').submit()">
                                                     <img class="media-object" src="@Url.Content("~/images/uniteller.png")" alt="@paymentMode.name" />
+												  </a>
                                                 }
+												else
+												{ <a href="#" onclick="$('#overlay').show();$(this).closest('form').submit()">
+													<img class="media-object" src="@Url.Content("~/images/"+(paymentMode.processing ?? "").ToLowerInvariant()+".png")" alt="@paymentMode.name" />
+												  </a>
+												}
                                             </span> 
 
                                             <div class="media-body">                                                                
@@ -107,40 +157,100 @@
                                                     }       
                                                     @if ((paymentMode.processing ?? "").ToLowerInvariant() == "paypal")
                                                     {
-                                                        <br /><a href="#" onclick="$(this).closest('form').submit()" style="font-weight:bold;">@PaymentStrings.ResourceManager.Get("PaymentPayButton")</a>
+                                                        <br /><a href="#" onclick="$('#overlay').show();$(this).closest('form').submit()" style="font-weight:bold;">>>@PaymentStrings.ResourceManager.Get("PaymentPayButton")</a>
                                                     }
                                                     else if ((paymentMode.processing ?? "").ToLowerInvariant() == "bank")
                                                     {
-                                                        <br /><a href="#" onclick="$('#receiption').fadeToggle(200)" style="font-weight:bold;">@PaymentStrings.ResourceManager.Get("PaymentBankBill")</a>
+														<div id="cache-block" style="display:none; border:1px solid grey; width:400px; padding:10px; margin-top:10px; margin-bottom:0px">
+
+														@{ // var lang = Sm.System.Mvc.Language.UrlLanguage.CurrentLanguage;
+															switch (lang)
+															{
+																case "en":
+																			<article style="padding: 10px 10px 10px 10px;">
+																			<p>
+																			1. Print your receipt <input type="button" value="Print" onclick="printIt($('#receipt1').html() + $('#receipt2').html()+ $('#receipt3').html())">
+																			</p>
+																			<p>
+																			2. Payment order at the hotel. The order number is indicated on the receipt.
+																			</p>
+																			<p>
+																			3. After payment, you can check the order status in the "Check Status"
+																			</p>
+																			</article>
+
+																	break;
+																case "ru":
+																			<article style="padding: 10px 10px 10px 10px;">
+																			<p>
+																				1. Распечатайте квитанцию <input type="button" value="Печать" onclick="printIt($('#receipt1').html() + $('#receipt2').html()+ $('#receipt3').html())">
+																			</p>
+																			<p>
+																				2. Оплатите заказ на стойке отеля. Номер заказа указан на квитанции. 
+																			</p>
+																			<p>
+																				3. После оплаты можно проверить статус заказа в меню "Проверить статус"
+																			</p>
+																			</article>
+
+																	break;
+																case "de":
+																			<article style="padding: 10px 10px 10px 10px;">
+																			<p>
+																					1. Drucken Sie Ihren Empfang <input type="button" value="Print" onclick="printIt($('#receipt1').html() + $('#receipt2' ).html() + $('#receipt3').html())">
+																			</p>
+																			<p>
+																					2. Zahlungsauftrag im Hotel. Die Auftragsnummer wird auf der Quittung angegeben.
+																			</p>
+																			<p>
+																					3. Nach der Zahlung, können Sie den Status der Bestellung in der "Status prüfen" überprüfen
+																			</p>
+																			</article>
+
+																	break;
+																case "el":
+																			<article style="padding: 10px 10px 10px 10px;">
+																			<p>
+																				1. Εκτυπώστε την απόδειξή σας <input type="button" value="Print" onclick="printIt($('#receipt1').html() + $('#receipt2').html() + $('#receipt3').html())">
+																			</p>
+																			<p>
+																				2. Για πληρωμή στο ξενοδοχείο. Ο αριθμός παραγγελίας αναγράφεται στην απόδειξη παραλαβής.
+																			</p>
+																			<p>
+																				3. Μετά την πληρωμή, μπορείτε να ελέγξετε την κατάσταση της παραγγελίας στο "Έλεγχος κατάστασης"
+																			</p>
+																			</article>
+
+																	break;
+															}
+														}
+
+                                                        </div>
+
+                                                        <br /><a href="#" onclick="$('#cache-block').toggle(200)" style="font-weight:bold;">>>@PaymentStrings.ResourceManager.Get("PaymentBankBill")</a>
                                                     }
                                                     else if ((paymentMode.processing ?? "").ToLowerInvariant() == "uniteller")
                                                     {
-                                                        <br /><a href="#" onclick="$(this).closest('form').submit()" style="font-weight:bold;">@PaymentStrings.ResourceManager.Get("PaymentPayButton")</a>
-                                                    }                                           
+                                                        <br /><a href="#" onclick="$('#overlay').show();$(this).closest('form').submit()" style="font-weight:bold;">@PaymentStrings.ResourceManager.Get("PaymentPayButton")</a>
+                                                    }
+													else 
+                                                    {
+                                                        <br /><a href="#" onclick="$('#overlay').show();$(this).closest('form').submit()" style="font-weight:bold;">>>@PaymentStrings.ResourceManager.Get("PaymentPayButton")</a>
+                                                    }                                      
                                                 </div>
-                                            </div>                        
+                                            </div>
+                                                                              
                                         </div>  
-                                    </div>
-                                    if ((paymentMode.processing ?? "").ToLowerInvariant() == "bank")
-                                    {
-                                        <div id="receiption" style="display:none; max-width:500px; height:200px; margin-left:0px; margin:20px; padding-left:0px; padding:20px; border:1px solid grey;">
-
-                                            <h4>some header</h4>
-                                            <p>some text about reception some text about reception some text about reception some text about reception some text about reception some text about reception some text about reception </p>
-                                            
-                                            <input type="button" value="print order" onclick="printIt($('#receipt').html())" />
-                                        </div>
-                                    }
+                                    </div>                         
                                 }
                             }
                         }
                     }
                 }
-                </div>
-                
-    }
-    else
-    {
+                </div> 
+            }
+            else
+            {
                 <div class="col-lg-12">
                     <h3 style="color:#8c8c8c; margin-top:0;">@PaymentStrings.ResourceManager.Get("PaymentReservationCannotPay")</h3>
                 </div>
@@ -152,5 +262,12 @@
                 <h3 style="color:#8c8c8c; margin-top:0;">@PaymentStrings.ResourceManager.Get("PaymentReservationNotFound")</h3>
             </div>
         }
-    </div>  
+	</div>
+	
+	<a href="@Url.Action("index", "excursion/logout")"><button class="btn btn-info" style="display:inline" type="button">Logout</button></a>
+</div>
+
+<div id="overlay" style="display:none;opacity: 0.7; position:absolute;top:0;left:0; width:100%;height:100%; background:#dcd7d7; z-index:100">
+    <center><div style="top:500px; font-size:25px; position:relative">preparing invoice...</div></center>
+
 </div>

@@ -5,6 +5,71 @@
             @Html.AntiForgeryToken()      
       }
   }
+
+
+    <!-- Price Confirmation Modal -->
+<div class="modal fade" id="searchclaim" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel" style="color:#777777;">@ExcursionStrings.ResourceManager.Get("OrderTitle")</h4>
+            </div>
+            <div class='notification-warnings' data-bind="visible: cartinfoErrors().length > 0">
+                <div class="bs-callout bs-callout-danger" style="margin: 15px;">
+                    <h4 style="margin-bottom:5px;">Заполните поля</h4>
+                    <ul style="list-style-type: none; padding-left: 0px;" data-bind="foreach: cartinfoErrors">
+                        <li><small style="color: #8c8c8c;" data-bind="text: $data"></small></li>
+                    </ul>
+                </div>
+            </div>
+            <div>
+                
+                    <form method="get" action="@Url.Action("index", "payment")">
+
+                        <input id='claim-id'  class="form-control" name="claim" maxlength="250" style="width: 400px; display:inline" type="text">
+
+                        <input id='phone'  class="form-control" name="claim" maxlength="250" style="width: 400px; display:inline" type="text">
+
+                        @{  var langg = Sm.System.Mvc.Language.UrlLanguage.CurrentLanguage;
+
+                            switch (langg)
+                            {
+                                case "en":
+                                    <button type="submit" style="display:inline" class="btn btn-primary">
+                                        check status
+                                    </button>
+                                    break;
+                                case "ru":
+                                    <button type="submit" style="display:inline" class="btn btn-primary">
+                                        проверить статус
+                                    </button>
+                                    break;
+                                case "de":
+                                    <button type="submit" style="display:inline" class="btn btn-primary">
+                                        status überprüfen
+                                    </button>
+                                    break;
+                                case "el":
+                                    <button type="submit" style="display:inline" class="btn btn-primary">
+                                        ελέγξετε την κατάσταση
+                                    </button>
+                                        break;
+                                }
+                            }
+                    <div class="modal-footer" data-bind="visible: cartinfoErrors().length == 0" style="margin-top:0px;">
+                        <button type="button" class="btn btn-primary" data-bind="click: navigateBackClick" data-dismiss="modal">Перейти к заказу</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">
+                            @ExcursionStrings.ResourceManager.Get("OrderCloseButton")
+                        </button>
+                    </div>
+                 </form>
+
+                </div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+
 <nav role="navigation" class="navbar navbar-inverse">
     <div class="container">
         <div class="navbar-header bk-navbar-header">
@@ -15,7 +80,39 @@
             </button> 
         </div>  
         <div class="collapse navbar-collapse navbar-ex1-collapse">         
-            <ul class="nav navbar-nav navbar-right">
+           <div style="display:none; margin-top:6px" id="check-claim">
+
+            <form method="get" action="@Url.Action("index", "payment")">
+                <input id='claim-id' onblur="setTimeout(function(){$('#check-claim, #navbar').toggle();}, 2000)" class="form-control" name="claim" maxlength="250" style="width: 200px; display:inline" type="text">
+@{  //var langg = Sm.System.Mvc.Language.UrlLanguage.CurrentLanguage;
+
+    switch (langg)
+    {
+        case "en":
+                <button type="submit" style="display:inline" class="btn btn-primary">
+		check status
+                </button>
+            break;
+        case "ru":
+                <button type="submit" style="display:inline" class="btn btn-primary">
+		проверить статус
+                </button>
+            break;
+        case "de":
+                <button type="submit" style="display:inline" class="btn btn-primary">
+		status überprüfen
+                </button>
+            break;
+        case "el":
+                <button type="submit" style="display:inline" class="btn btn-primary">
+		ελέγξετε την κατάσταση
+                </button>
+            break;
+    }
+}
+            </form>
+             </div>  
+            <ul id="navbar" class="nav navbar-nav navbar-right">
             @{ Html.RenderAction("PageNavigation", "customization"); }
             @{
                 var languages = Sm.System.Mvc.Language.UrlLanguage.SupportedLanguages;
@@ -39,8 +136,7 @@
                 </li>                  
                 }          
             }
-<!--
-            @if (User.Identity.IsAuthenticated)
+       <!--     @if (User.Identity.IsAuthenticated)
             {        
             <li class="dropdown bk-navbar-user">
                 <a data-toggle="dropdown" class="dropdown-toggle"  href="#">@User.Identity.Name <b class="caret"></b></a>                                                         
@@ -57,12 +153,12 @@
                     <a  href="@Url.Action("login", "account", new { returnUrl = Url.Action("index") })">@SharedStrings.ResourceManager.Get("ToolbarSignIn")</a>
                 </li>
             }
--->         
+              -->
             @{    
                 var cart = GuestService.Models.Booking.ShoppingCart.CreateFromSession(Session);                       
                 <li id="shoppingCart" @if (!cart.IsOrders)
                                       { <text>style="display:none;"</text> } class="bk-navbar-shopping-cart">
-                    <a href="@Url.Action("index", "booking")">@SharedStrings.ResourceManager.Get("NavigatorMyOrders")</a>
+                    <a href="@Url.Action("index", "booking")"><img src="/guestservice_dev/images/shopping-cart.png" width="30" height="30" style="margin-top: -5px;"></a>
                 </li>            
             }
             </ul>

@@ -23,30 +23,47 @@
 }
 @if (Model.excursion != null) 
 {
-    <div class="media" style="margin-bottom: 15px;">
+    <div class="media" style="margin-bottom: 15px;margin-top: 15px">
         <span class="pull-left">
-            <img class="media-object" src="@Url.Content("~/images/excursion.png")" alt="@SharedStrings.ResourceManager.Get("ReservationOrder_ExcursionAlt")" />
+            <img class="media-object" style="display:none;" src="@Url.Content("~/images/excursion.png")" alt="@SharedStrings.ResourceManager.Get("ReservationOrder_ExcursionAlt")" />
         </span> 
         <div class="media-body">  
-            <h3 class="media-heading" style="color: #777777; margin-bottom:0; text-transform: uppercase;">@Model.excursion.name</h3>                     
-            <div style="color: #777777;">
-            <strong> @Model.datefrom.ToString("dd.MM.yyyy") - @Model.datetill.ToString("dd.MM.yyyy")@if (Model.excursion.grouptype != null){<text>, </text> @Model.excursion.grouptype.description } </strong>                                                                                                     
+		<font face="Segoe UI" size="2">
+			@ExcursionStrings.ResourceManager.Get("Title")
+            <h4 class="media-heading" style="margin-bottom:0;margin-top:0px; text-transform: uppercase;">@Model.excursion.name</h4>                     
+            <div>
+            <strong> @Model.datefrom.ToString("dd.MM.yyyy") @if (Model.excursion.grouptype != null){<text>, </text> @Model.excursion.grouptype.description } </strong>                                                                                                     
                 @if (Model.excursion.time != null)
                 {
-                    <br /><span style="color:#b7b7b7;">@SharedStrings.ResourceManager.Get("ReservationOrder_ExcursionTime")</span> @Model.excursion.time.description
+                    <br /><span>@SharedStrings.ResourceManager.Get("ReservationOrder_ExcursionTime")</span> @Model.excursion.time.description
                 }
                 @if (Model.excursion.language != null)
                 {
-                    <br /><span style="color:#b7b7b7;">@SharedStrings.ResourceManager.Get("ReservationOrder_ExcursionLang")</span> @Model.excursion.language.description
+                    <br /><span>@SharedStrings.ResourceManager.Get("ReservationOrder_ExcursionLang")</span> @Model.excursion.language.description
                 }               
-                <br /><span style="color:#b7b7b7;">@SharedStrings.ResourceManager.Get("ReservationOrder_Adult")</span> @Model.pax.adult@if (@Model.pax.child >= 0)
-                                                                                    {<text>,</text> <span style="color:#b7b7b7;">@SharedStrings.ResourceManager.Get("ReservationOrder_Child")</span>@Model.pax.child}@if (@Model.pax.infant >= 0)
-                                                                                           {<text>,</text> <span style="color:#b7b7b7;">&nbsp;@SharedStrings.ResourceManager.Get("ReservationOrder_Infant")</span>@Model.pax.infant}                 
+                <br /><span>@SharedStrings.ResourceManager.Get("ReservationOrder_Adult")</span> @Model.pax.adult@if (@Model.pax.child >= 0)
+                                                                                    {<text>,</text> <span>@SharedStrings.ResourceManager.Get("ReservationOrder_Child")</span>@Model.pax.child}@if (@Model.pax.infant >= 0)
+                                                                                           {<text>,</text> <span>&nbsp;@SharedStrings.ResourceManager.Get("ReservationOrder_Infant")</span>@Model.pax.infant}                 
+                @if (!string.IsNullOrEmpty(Model.partner.name))
+                {
+                    <br /><strong><span>Provider:</span> @Model.partner.name </strong>
+                }
+                
                 @if (!string.IsNullOrEmpty(Model.note))
                 {
-                    <br /><span style="color:#b7b7b7;">@SharedStrings.ResourceManager.Get("ReservationOrder_Note")</span> @Model.note
+                    <br /><span>@SharedStrings.ResourceManager.Get("ReservationOrder_Note")</span> @Model.note
+                }
+
+                @if (!string.IsNullOrEmpty(Model.excursion.included))
+                {
+                    <br /><span>Included:</span> @Model.excursion.included
+                }
+				@if (!string.IsNullOrEmpty(Model.excursion.pickup))
+                {
+                    <br /><span>Pickup place/time:</span> @Model.excursion.pickup
                 }
             </div>
+		</font>
         </div>                                                      
     </div>  
 }
@@ -78,6 +95,8 @@
                 {
                     <br /><span style="color:#b7b7b7;">@SharedStrings.ResourceManager.Get("ReservationOrder_Note")</span> @Model.note
                 }
+
+		
             </div>
         </div>                                                      
     </div>  

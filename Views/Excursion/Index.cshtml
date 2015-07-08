@@ -1,6 +1,17 @@
 ﻿@model GuestService.Models.Excursion.ExcursionIndexContext
 
 @{
+
+    if(!string.IsNullOrEmpty(Request.Params["ordernote"]))
+    {
+	   System.Web.HttpContext.Current.Session["ordernote"] = Request.Params["ordernote"];
+    }
+
+	if (!string.IsNullOrEmpty(Request.Params["hotelname"]))
+    {
+        System.Web.HttpContext.Current.Session["hotelname"] = Request.Params["hotelname"];
+    }
+	
     ViewBag.Title = ExcursionStrings.ResourceManager.Get("Title");
 }
 
@@ -21,14 +32,19 @@
 
 @section scripts {
 <script type="text/javascript">
-    defaults.format = '@ExcursionStrings.ResourceManager.Get("DateTimeFormat")';
-    defaults.language =  '@ExcursionStrings.ResourceManager.Get("DateTimeLanguage")';
+
+    var today = new Date();
+    var tomorrow = new Date();
+    tomorrow.setDate(today.getDate()+1);
+
+    defaults.format = '@ExcursionStrings.ResourceManager.Get("DateTimeFormat")';    
+    defaults.language =  '@ExcursionStrings.ResourceManager.Get("DateTimeLanguage")';    
     var site = site || {};
     site.vm = site.vm || {};
     var map;
     function initialize() {
-        var mapOptions = {
-            mapTypeControl: false,
+        var mapOptions = {                                          
+            mapTypeControl: false,                       
             panControl:false,
             rotateControl:false,
             streetViewControl: false,
@@ -37,49 +53,40 @@
             zoom: 8
         };
 
-      map = new google.maps.Map(document.getElementById("map"),mapOptions);
-
-      /*var mapOptions = {
-        zoom: 8,
-        center: new google.maps.LatLng(-34.397, 150.644)
-      };
-      map = new google.maps.Map(document.getElementById('map'),
-          mapOptions); */
+      map = new google.maps.Map(document.getElementById("map"),mapOptions);     
     }
-
-    //google.maps.event.addDomListener(window, 'load', initialize);
 
     function show_hide() {
-        var hiddenContent = $("#showFilters").parent().find("div:eq(0)");
-        if (hiddenContent.is(":visible")){
-            hiddenContent.slideUp(1000);
-        } else{
-            hiddenContent.slideDown(1000);
+        var hiddenContent = $("#showFilters").parent().find("div:eq(0)");                                        
+        if (hiddenContent.is(":visible")){                                                          
+            hiddenContent.slideUp(1000);                                             
+        } else{                                                                                                                                                           
+            hiddenContent.slideDown(1000);                                                                                
         }
-        return false;
+        return false;                            
     }
     function map_resize_multiple_place(m,b) {
-        google.maps.event.trigger(m, "resize");
+        google.maps.event.trigger(m, "resize");                        
         m.fitBounds(b);
-    }
+    } 
     function map_resize_one_place(m,c) {
-        google.maps.event.trigger(m, "resize");
+        google.maps.event.trigger(m, "resize");                        
     	m.setCenter(new google.maps.LatLng(c.latitude,c.longitude));
-	    m.setZoom(14);
-    }
-    $(function () {
-        "use strict";
+	    m.setZoom(14);	        
+    }  
+    $(function () {     	
+        "use strict";          
         site.vm.excursion = function () {
-            var
-            categoryImageBaseUrl = '@Url.ApiActionLink("categoryimage", "excursion", new { id = ".id.", w = 70, h = 70 })',
-            excursionLargeImageBaseUrl = '@Url.ApiActionLink("catalogimage", "excursion", new { id = ".id.", i = ".i.", w = 760, h = 400 })',
+            var           
+            categoryImageBaseUrl = '@Url.ApiActionLink("categoryimage", "excursion", new { id = ".id.", w = 200, h = 200 })',
+            excursionLargeImageBaseUrl = '@Url.ApiActionLink("catalogimage", "excursion", new { id = ".id.", i = ".i.", w = 500, h = 400 })',
             excursionImageBaseUrl = '@Url.ApiActionLink("catalogimage", "excursion", new { id = ".id.", i = 0, w = 200, h = 130 })',
             excursionPriceBaseUrl = '@Url.ApiActionLink("price", "excursion", new { id = ".id." })',
             languageImageBaseUrl = '@Url.Content("~/images/flags/.id..png")',
             excursionSortOrders = ko.observableArray([
-
-                { name: 'price', text: '@ExcursionStrings.ResourceManager.Get("SortOrderByPrice")' },
+			        { name: 'price', text: '@ExcursionStrings.ResourceManager.Get("SortOrderByPrice")' },
                 { name: 'pricedname', text: '@ExcursionStrings.ResourceManager.Get("SortOrderByName")' }
+        
                 ]),
             // excursionGeographySearchLimit = ko.observable('@GuestService.Settings.ExcursionGeographySearchLimit'),
             partnerAlias = ko.observable('@Model.PartnerAlias'),
@@ -102,7 +109,7 @@
             destinationstates = ko.observableArray(),
             categorygroups = ko.observableArray(),
             geographies = ko.observableArray(),
-            excursions = ko.observableArray(),
+            excursions = ko.observableArray(),      
             excursionsData = ko.observableArray(),
             searchFlag = ko.observable(false),
             description = ko.observable(),
@@ -118,8 +125,8 @@
             filterDestinations = ko.observableArray([]),
             filterLanguages = ko.observableArray([]),
             filterDateChecked = ko.observable(false),
-            filterDate = ko.observable(),
-
+            filterDate = ko.observable(),          
+           
             cartinfoPaxSelect = ko.observableArray([]),
             cartinfoPrice = ko.observable(),
             cartinfoAdult = ko.observable(),
@@ -164,30 +171,30 @@
                     $('#excursionsortorder').dropdown();
                 }
             },
-            reset = function(id,obj,ex) {
-                prices(null);
-                doExcursionPrice(id, obj);
-
-                if(ex.destinations && ex.destinations.length > 0 && ex.destinations[0].location != null)
-                    var myLatlng = new google.maps.LatLng(ex.destinations[0].location.latitude, ex.destinations[0].location.longitude);
+            reset = function(id,obj,ex) {                     
+                prices(null);                                         
+                doExcursionPrice(id, obj);             
+                
+                if(ex.destinations && ex.destinations.length > 0 && ex.destinations[0].location != null) 
+                    var myLatlng = new google.maps.LatLng(ex.destinations[0].location.latitude, ex.destinations[0].location.longitude);                    
                 else
                     var myLatlng = new google.maps.LatLng(0,0);
 
-                var mapOptions = {
-                    mapTypeControl: false,
+                var mapOptions = {                                          
+                    mapTypeControl: false,                       
                     panControl:false,
                     rotateControl:false,
                     streetViewControl: false,
-                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                    mapTypeId: google.maps.MapTypeId.ROADMAP                       
                 };
-                var map = new google.maps.Map(document.getElementById("map"),mapOptions);
-
+                var map = new google.maps.Map(document.getElementById("map"),mapOptions);     
+                
                 var depImage = new google.maps.MarkerImage(
                     "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|FFD800",
                     new google.maps.Size(21, 34),
                     new google.maps.Point(0,0),
                     new google.maps.Point(10, 34));
-
+                                        
                 var destImage = new google.maps.MarkerImage(
                     "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|00CC00",
                     new google.maps.Size(21, 34),
@@ -196,65 +203,65 @@
 
 
                 var marker, bounds = new google.maps.LatLngBounds();
-
-                if ((ex.destinations && ex.destinations.length > 0) || (ex.departures && ex.departures.length > 0)) {
+ 
+                if ((ex.destinations && ex.destinations.length > 0) || (ex.departures && ex.departures.length > 0)) {        
                     if(ex.departures && ex.departures.length > 0) {
                         for(var departureIndex in ex.departures) {
                             var departure = ex.departures[departureIndex];
                             if(departure && departure.location && departure.name) {
                                 marker = new MarkerWithLabel({
-                                    position: new google.maps.LatLng(departure.location.latitude,departure.location.longitude),
+                                    position: new google.maps.LatLng(departure.location.latitude,departure.location.longitude),                                  
                                     map: map,
                                     icon: depImage,
                                     labelContent: departure.name,
                                     labelAnchor: new google.maps.Point(22, 0),
-                                    labelClass: "labels",
-                                    labelStyle: {opacity: 0.75}
+                                    labelClass: "labels", 
+                                    labelStyle: {opacity: 0.75}                                                                  
                                 });
-                                bounds.extend(marker.position);
+                                bounds.extend(marker.position); 
                             }
                         }
-                    }
+                    }  
 
-                    if(ex.destinations && ex.destinations.length > 0) {
-                        for(i=0;i<ex.destinations.length;i++) {
-                            if(ex.destinations[i].location != null && ex.destinations[i].name != null) {
+                    if(ex.destinations && ex.destinations.length > 0) {                 
+                        for(i=0;i<ex.destinations.length;i++) {                                                     
+                            if(ex.destinations[i].location != null && ex.destinations[i].name != null) {                                     
                                 marker = new MarkerWithLabel({
-                                    position: new google.maps.LatLng(ex.destinations[i].location.latitude,ex.destinations[i].location.longitude),
+                                    position: new google.maps.LatLng(ex.destinations[i].location.latitude,ex.destinations[i].location.longitude),                                  
                                     map: map,
                                     icon: destImage,
                                     labelContent: ex.destinations[i].name,
                                     labelAnchor: new google.maps.Point(22, 0),
-                                    labelClass: "labels",
-                                    labelStyle: {opacity: 0.75}
+                                    labelClass: "labels", 
+                                    labelStyle: {opacity: 0.75}                                                                  
                                 });
-                                bounds.extend(marker.position);
+                                bounds.extend(marker.position);                                
                             }
-                        }
-                    }
-
-
+                        }  
+                    }        
+                    
+                                    
                 } else {
                     bounds.extend(myLatlng);
                 }
-
+                
            		if(i == 1) map_resize_one_place(map, (ex.destinations && ex.destinations.length > 0 && ex.destinations[0].location) ? ex.destinations[0].location : myLatlng); else map_resize_multiple_place(map,bounds);
-
-                $("#maptoggle").click(function(){
+		
+                $("#maptoggle").click(function(){                                                  
                     $(this).html(($(this).html() == '@ExcursionStrings.ResourceManager.Get("MapShowLink")') ? '@ExcursionStrings.ResourceManager.Get("MapHideLink")' : '@ExcursionStrings.ResourceManager.Get("MapShowLink")');
                     $("#map").animate({ height: (($("#map").height() == 100) ? '400px' : "100px")}, 500, function() {
             			if(i == 1) map_resize_one_place(map, (ex.destinations && ex.destinations.length > 0 && ex.destinations[0].location) ? ex.destinations[0].location : myLatlng); else map_resize_multiple_place(map,bounds);
-                    });
-                    $('html, body').animate({ scrollTop: $("#map").offset().top-100}, 1000);
+                    });                                
+                    $('html, body').animate({ scrollTop: $("#map").offset().top-100}, 1000);                                                                           
                     return false;
-                });
+                });             
             },
-            prepareDescription = function (d) {
+            prepareDescription = function (d) {                
                 if (d.pictures) {
                     for (var i = 0; i < d.pictures.length; i++) {
                         d.pictures[i].largeImageUrl = excursionLargeImageBaseUrl.replace('.id.', d.excursion.id).replace('.i.', i);
-                    }
-                }
+                    }                    
+                }    
 
                 if (d.excursion.languages) {
                     for (var i = 0; i < d.excursion.languages.length; i++) {
@@ -262,7 +269,7 @@
                         d.excursion.languages[i].languageImageUrl = languageImageBaseUrl.replace('.id.', alias);
                     }
                 }
-
+             
                 return d;
             },
 
@@ -273,7 +280,6 @@
                 result.version = ++paramsVersion;
                 return result;
             },
-
             buildSearchParams = function () {
                 var i, j, result = buildViewParams();
 
@@ -294,7 +300,7 @@
                         }
                     }
                 }
-
+                
                 result.departures = [];
                 if( searchDeparturePointForceUse() ) {
                     if( searchDeparturePoint() && searchDeparturePoint().id != 0 ) {
@@ -328,9 +334,9 @@
                     }
                 }
 
-                if( filterDateChecked )
+                if( filterDateChecked ) 
                     result.fd = result.ld = filterDate();
-                else
+                else 
                     result.fd = result.ld = null;
 
                 // result.version = ++paramsVersion;
@@ -368,7 +374,7 @@
             applySearchParams = function (o) {
                 excursionSortOrder((o && o.sortorder) ? ko.utils.arrayFirst(excursionSortOrders(), function (item) { return item.name == o.sortorder; }) : excursionSortOrder());
                 var s = (o && o.text && o.text != '') ? o.text : '';
-                if( searchTextInput() != s ) {
+                if( searchTextInput() != s ) {   
                     searchTextInputSkipChanges = true;
                     searchTextInput(s);
                 }
@@ -378,11 +384,11 @@
                         searchDeparturePointForceUse(true);
                         ko.utils.arrayForEach(searchDeparturePoints(), function (d) {
                             if( d.id == o.searchdeparture ) {
-                               searchDeparturePoint(d);
+                               searchDeparturePoint(d); 
                             }
                         });
                     } else {
-                        searchDeparturePointForceUse(false);
+                        searchDeparturePointForceUse(false);    
                         searchDeparturePoint((searchDeparturePoint() && searchDeparturePoint().length > 0) ? searchDeparturePoint()[0] : undefined);
                     }
                 }
@@ -392,19 +398,19 @@
                     applyFilter(filterDepartures(), []);
                 } else {
                     applyFilter(filterDepartures(), (o && o.departures) ? o.departures : undefined);
-                }
+                } 
                 applyFilter(filterDestinations(), (o && o.destinations) ? o.destinations : undefined);
                 applyFilter(filterLanguages(), (o && o.languages) ? o.languages : undefined);
 
                 if(o && o.fd && o.ld) {
                     filterDateChecked(true);
-                    if(filterDate() != o.fd) {
+                    if(filterDate() != o.fd) {                    
                         searchDateSkipChanges = true;
-                        filterDate(o.fd);
+                        filterDate(o.fd);                          
                     }
                 } else {
                    filterDateChecked(false);
-                }
+                }          
             },
             prepareExcursion = function (d) {
                 if (d && d.excursion && d.excursion.languages) {
@@ -427,7 +433,7 @@
                     site.service.ajax.get('@Url.ApiActionLink("departures", "excursion")', { pa: partnerAlias(), spa: startPointAlias(), ds: filterDestinationState() ? filterDestinationState().id : null },
                         function (result) {
                             var departures = [{ id: 0, name: '@ExcursionStrings.ResourceManager.Get("SearchDeparture_AnyPoint")' }];
-                            if( result && result.departures ) {
+                            if( result && result.departures ) { 
                                 ko.utils.arrayForEach(result.departures, function (d) {
                                     departures.push(d);
                                 });
@@ -435,7 +441,7 @@
                             searchDeparturePoints(departures);
                             searchDeparturePoint(departures[0]);
                         }
-                    );
+                    );                  
                 }
             },
             doSearchDeparturePointReset = function() {
@@ -446,7 +452,7 @@
                 history.pushState({ cmd: 'categories' }, document.title, null);
                 doCategories();
             },
-            doCategories = function () {
+            doCategories = function () {            
                 var text = searchTextInput();
                 if( text && text !== '') {
                     searchTextInputSkipChanges = true;
@@ -458,14 +464,14 @@
                 if( filterDestinationState() ) {
                     filterDestinationState(null);
                     filterInitialized(false);
-                    doDepartureInitialize(true);
+                    doDepartureInitialize(true);    
                 } else {
                     doDepartureInitialize(false);
                 }
-
+                
                 if (categorygroups().length == 0) {
                     site.service.ajax.get('@Url.ApiActionLink("destinationsandcategorygroups", "excursion")', { pa: partnerAlias(), spa: startPointAlias() },
-                        function (result) {
+                        function (result) {                        
                             destinationstates([]);
                             if (result && result.destinationstates) {
                                 ko.utils.arrayForEach(result.destinationstates, function (g) {
@@ -510,16 +516,16 @@
                 if (o && o.text && o.text != "") {
                     geographies([]);
 
-                    doSearchView = operation.search;
+                    doSearchView = operation.search;   
 
                     site.service.ajax.get('@Url.ApiActionLink("search", "excursion")', { s: o.text, spa: startPointAlias() },
                         function (result) {
-                            if (result.geography) {
+                            if (result.geography) {                                
                                 geographies([]);
                                 ko.utils.arrayForEach(result.geography, function (d) {
                                     geographies.push(d);
                                 });
-
+                              
                             }
                         }
                     );
@@ -576,15 +582,15 @@
                             } else {
                                 filterLanguages([]);
                             }
-                            filterDate();
+                            filterDate();                      
                         }
                     );
                 }
 
                 excursions([]);
                 excursionsData([]);
-                searchFlag(true);
-                site.service.ajax.get('@Url.ApiActionLink("catalog", "excursion")', {
+                searchFlag(true);                    
+                site.service.ajax.get('@Url.ApiActionLink("catalog", "excursion")', {                    
                         pa: partnerAlias(),
                         spa: startPointAlias(),
                         ds: (o && o.destinationstate) ? o.destinationstate.id : null,
@@ -611,8 +617,8 @@
                             }
                             else
                                 applySearchParams(o, checkstate);
-                            searchFlag(false);
-
+                            searchFlag(false);                            
+                        
                             navigateView(doSearchView);
                         }
                     }
@@ -621,38 +627,49 @@
             doScrollExcursionList = function () {
                 if(excursions() && excursionsData() ) {
                     for (var i = excursions().length, j = excursionsData().length, m = i + 10; i < j && i < m; i++) {
-                        excursions.push(prepareExcursion(excursionsData()[i]));
+                        excursions.push(prepareExcursion(excursionsData()[i]));    
                     }
                 }
             },
-            doDescriptionHistory = function (o) {
+            doDescriptionHistory = function (o) {                            
                 history.pushState({ cmd: 'description', o: o }, document.title, null);
                 doDescription(o);
             },
-            doDescription = function (o) {
+            doDescription = function (o) {                                               
                 description(null);
                 prices(null);
                 cartinfoBookingView(false);
-                navigateView(operation.description);
+                navigateView(operation.description);                
 
                 site.service.ajax.get('@Url.ApiActionLink("exdescription", "excursion")', {
                         pa: partnerAlias(),
                         ex: o.excursion
                     },
                     function (result) {
-                        if (result && result.length > 0 && result[0] && result[0].excursion && result[0].excursion.id == o.excursion) {
-                            description(prepareDescription(result[0]));
-                            reset(o.excursion, { date: o.date ? o.date : site.utils.date.formatIso(new Date()), navigateprice: (o && o.navigateprice) ? o.navigateprice : false }, result[0].excursion);
+                        if (result && result.length > 0 && result[0] && result[0].excursion && result[0].excursion.id == o.excursion) {                                                 
+                            description(prepareDescription(result[0]));  
+				try{                                                      
+		                            reset(o.excursion, { date: o.date ? o.date : site.utils.date.formatIso(tomorrow ), navigateprice: (o && o.navigateprice) ? o.navigateprice : false }, result[0].excursion);
+				}
+				catch(err){}
+
                             $('.carousel').carousel({ interval: 5000 });
+
+                            $('#ex_description').html("<span id='full_text' style='display:none'>" + $('#ex_description').html() +"&nbsp;&nbsp;<span class='readmoretoggle'>Close</span></span>" + "<span id='short_text' >" + $('#ex_description').html().substring(0,500) +"...&nbsp;&nbsp;<span class='readmoretoggle'>Read more</span></span>");
+                            
+                            $('.readmoretoggle').click(function(){
+                                $('#full_text').fadeToggle();
+                                $('#short_text').fadeToggle();
+                            });
                         }
                         else
                             description(null);
                     }
                 );
             },
-            doExcursionPrice = function (id, o) {
+            doExcursionPrice = function (id, o) { 
                 var priceUrl = excursionPriceBaseUrl.replace('.id.', id)
-                if (!(o && o.date)) o.date = site.utils.date.formatIso(new Date());
+                if (!(o && o.date)) o.date = site.utils.date.formatIso(tomorrow );
                 pricesNotFound(false);
                 excursionpricedate(o.date);
 
@@ -662,7 +679,7 @@
                         spa: startPointAlias(),
                         dt: o.date
                     },
-                    function (result) {
+                    function (result) {                                                                 
                         if (description() && description().excursion.id == id) {
                             excursionpricedate(o.date);
                             if (prices() == null) {
@@ -672,10 +689,10 @@
                                     selectedDateFormat: 'YYYY-MM-DD',
                                     language: '@Sm.System.Mvc.Language.UrlLanguage.CurrentLanguage',
                                     description: description().excursiondates
-                                }
+                                }                                                                                           
                                 $('#excursionpricedate')
                                     .datepaginator(options)
-                                    .on('selectedDateChanged', function (event, c) {
+                                    .on('selectedDateChanged', function (event, c) {                                        
                                         if (excursionpricedateIsChanging === false) {
                                             doExcursionPrice(id, { date: site.utils.date.formatIso(c.toDate()) });
                                         }
@@ -702,42 +719,42 @@
                                     if (d.language)      columns.language = true;
                                     if (d.time)          columns.extime = true;
                                     if (d.group)         columns.group = true;
-                                    if (d.closesaletime) columns.closesaletime = true;
+                                    if (d.closesaletime) columns.closesaletime = true;                                                                                                            
                                     // var p = ko.mapping.fromJS(d);
-                                    prices.push(d);
+                                    prices.push(d);                                   
                                 }
                             });
                             priceColumns(columns);
                             pricesNotFound(prices().length == 0);
-
+                            
                         }
                     }
                 );
             },
 
-            doExcursionConfirmAddToCart = function(data) {
+            doExcursionConfirmAddToCart = function(data) {                    
                 cartinfoPrice(data);
                 cartinfoAdult(1);
                 cartinfoChild(0);
                 cartinfoInfant(0);
-                cartinfoNote('');
-                cartinfoName('');
-                cartinfoPhone('');
+                cartinfoNote('');                
+                cartinfoName('');                
+                cartinfoPhone('');                
                 cartinfoErrors([]);
                 cartinfoPickUpPoint(null);
-
+               
                 cartinfoBookingView(true);
                //console.log(cartinfoPrice());
                // $('#confirmpricemodal div#confirmPriceResult').hide();
-               // $('#confirmpricemodal div#confirmPriceBody').show();
+               // $('#confirmpricemodal div#confirmPriceBody').show();                               
                // $('#confirmpricemodal').modal({ show: true });
-
+               
             },
-            doExcursionAddToCart = function() {
+            doExcursionAddToCart = function() {               
                 var price = cartinfoPrice();
                 site.service.ajax.post('@Url.Action("addcart", "excursion")', {
-                        partner: partnerAlias(),
-                        excursion: {
+                        partner: partnerAlias(), 
+                        excursion: { 
                             id: price ? price.id : (-1),
                             date: price ? price.date : null,
                             extime: (price && price.time) ? price.time.id : null,
@@ -747,26 +764,25 @@
                             pickuppoint: (cartinfoPickUpPoint()) ? cartinfoPickUpPoint().id : null,
                             pax: { adult: cartinfoAdult(), child: cartinfoChild(), infant: cartinfoInfant() },
                             contact: { name: cartinfoName(), mobile: cartinfoPhone() },
-                            note: cartinfoNote()
+                            note: cartinfoNote()                            
                         }
                     },
-                    function (result) {
+                    function (result) {                       
                         if( result && result.errormessages ) {
                             cartinfoErrors(result.errormessages);
                         } else {
                             //prices(null);
-                         //   cartinfoBookingView(false);
+                     //       cartinfoBookingView(false);
                             //doExcursionPrice();
                             //console.log(description());
-                          //  reset(description().excursion.id, { date: excursionpricedate() },description().excursion);
-                         //   cartinfoErrors([]);
-                         //   $('#shoppingCart').show();
-
-                            location.href = '@Url.Action("index", "booking")';
+                     //       reset(description().excursion.id, { date: excursionpricedate() },description().excursion);
+                     //       cartinfoErrors([]);
+                      //      $('#shoppingCart').show();
+					  location.href = '@Url.Action("index", "booking")';
                         }
-                       // $('#confirmpricemodal').modal({ show: true });
+                      //  $('#confirmpricemodal').modal({ show: true });
                     },
-                    function (failresult) {
+                    function (failresult) {                        
                         return true;
                     }
                 );
@@ -784,18 +800,18 @@
                         doDescription(o); break;
                 }
             },
-
+            
             doNavigateToPriceList = function() {
                 $('html, body').animate({
                     scrollTop: $('#excursionPrices').offset().top
                 }, 500);
             },
-
+            
             searchDeparturePointChanged = function(data, event) {
                 if (event.originalEvent) { // user changed
                     searchDeparturePointForceUse((searchDeparturePoint() && searchDeparturePoint().id != 0) ? true : false);
-                    doSearchHistory(buildSearchParams());
-                }
+                    doSearchHistory(buildSearchParams()); 
+                } 
             };
 
             for(var i = 0; i <= 10; i++) {
@@ -810,24 +826,24 @@
                 searchTextInputSkipChanges = false;
             });
 
-            filterDateChecked.subscribe(function (value) {
+            filterDateChecked.subscribe(function (value) {  
                 if( value ) {
-                    filterDate('@DateTime.Now.ToString("s")');
+                    filterDate('@DateTime.Now.ToString("s")');    
                 } else {
                     filterDate('');
                 }
             });
 
-            filterDate.subscribe(function (value) {
-                if(searchDateSkipChanges != true) {
-                    doSearchHistory(buildSearchParams());
-                }
+            filterDate.subscribe(function (value) {       
+                if(searchDateSkipChanges != true) {                                        
+                    doSearchHistory(buildSearchParams());                    
+                } 
                 searchDateSkipChanges = false;
             });
 
 
             return {
-                //
+                // 
                 windowHeight: ko.observable($(window).height()+'px'),
                 loadingInProgress: loadingInProgress,
                 // data
@@ -856,7 +872,7 @@
                 categorygroups: categorygroups,
                 geographies: geographies,
                 excursions: excursions,
-                searchFlag: searchFlag,
+                searchFlag: searchFlag,             
                 // preloader: preloader,
                 description: description,
 
@@ -903,7 +919,7 @@
                     }
                 },
                 geographyItemClick: function (data) {
-                    if (data && data.destinations) {
+                    if (data && data.destinations) {                
                         doSearchHistory(buildViewParams({ destinations: data.destinations }));
                     }
                 },
@@ -945,104 +961,104 @@
                         data.marked(!data.marked());
                         doSearchHistory(buildSearchParams());
                     }
-                },
+                },                
                 filterLanguageItemClick: function (data) {
                     if (data) {
                         data.marked(!data.marked());
                         doSearchHistory(buildSearchParams());
                     }
-                },
+                },  
                 filterDateCheckedItemClick: function (data) {
                     if (data) {
                         data.filterDateChecked(!data.filterDateChecked());
                         if( !data.filterDateChecked() )
                             doSearchHistory(buildSearchParams());
                     }
-                },
-                /*filterDateFlagResetClick: function () {
-                    doSearchHistory(buildSearchParams());
+                },             
+                /*filterDateFlagResetClick: function () {                                        
+                    doSearchHistory(buildSearchParams());                    
                 },*/
                 excursionPriceItemClick: function (data) {
                     doExcursionConfirmAddToCart(data);
                 },
-                excursionAddToCartClick: function (data) {
+                excursionAddToCartClick: function (data) {                
                     doExcursionAddToCart();
                 },
-                cartinfoShowPickUpPointMapClick: function() {
+                cartinfoShowPickUpPointMapClick: function() {                    
                     var map;
-
-                    if(cartinfoPrice().pickuppoints[0].location != null)
-                        var myLatlng = new google.maps.LatLng(cartinfoPrice().pickuppoints[0].location.latitude,cartinfoPrice().pickuppoints[0].location.longitude);
+                    
+                    if(cartinfoPrice().pickuppoints[0].location != null) 
+                        var myLatlng = new google.maps.LatLng(cartinfoPrice().pickuppoints[0].location.latitude,cartinfoPrice().pickuppoints[0].location.longitude);                    
                     else
                         var myLatlng = new google.maps.LatLng(0,0);
 
-                    var mapOptions = {
-                        mapTypeControl: false,
+                    var mapOptions = {                                          
+                        mapTypeControl: false,                       
                         panControl:false,
                         rotateControl:false,
                         streetViewControl: false,
                         mapTypeId: google.maps.MapTypeId.ROADMAP
                     };
-                    map = new google.maps.Map(document.getElementById("map_canvas"),mapOptions);
+                    map = new google.maps.Map(document.getElementById("map_canvas"),mapOptions);      
                     var selImage = new google.maps.MarkerImage(
                         "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|FF0000",
                         new google.maps.Size(21, 34),
                         new google.maps.Point(0,0),
-                        new google.maps.Point(10, 34));
+                        new google.maps.Point(10, 34));                        
                     var othImage = new google.maps.MarkerImage(
                         "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|00CC00",
                         new google.maps.Size(21, 34),
                         new google.maps.Point(0,0),
                         new google.maps.Point(10, 34));
-                    var marker = new Array();
+                    var marker = new Array();                                        
                     var bounds = new google.maps.LatLngBounds();
-                    if (cartinfoPrice().pickuppoints.length > 0) {
-                        for(i=0;i<cartinfoPrice().pickuppoints.length;i++) {
-                            if(cartinfoPrice().pickuppoints[i].location != null && cartinfoPrice().pickuppoints[i].name != null) {
+                    if (cartinfoPrice().pickuppoints.length > 0) {                        
+                        for(i=0;i<cartinfoPrice().pickuppoints.length;i++) {                                                     
+                            if(cartinfoPrice().pickuppoints[i].location != null && cartinfoPrice().pickuppoints[i].name != null) {                              
                                 if(cartinfoPickUpPoint().id == cartinfoPrice().pickuppoints[i].id) var icon_ = selImage; else var icon_ = othImage;
                                 marker[i] = new MarkerWithLabel({
-                                    position: new google.maps.LatLng(cartinfoPrice().pickuppoints[i].location.latitude,cartinfoPrice().pickuppoints[i].location.longitude),
+                                    position: new google.maps.LatLng(cartinfoPrice().pickuppoints[i].location.latitude,cartinfoPrice().pickuppoints[i].location.longitude),                                  
                                     map: map,
                                     icon: icon_,
                                     labelContent: cartinfoPrice().pickuppoints[i].name,
                                     labelAnchor: new google.maps.Point(22, 0),
-                                    labelClass: "labels",
+                                    labelClass: "labels", 
                                     labelStyle: {opacity: 0.75},
-                                    pickuppoint: cartinfoPrice().pickuppoints[i]
+                                    pickuppoint: cartinfoPrice().pickuppoints[i]                                   
                                 });
                                 bounds.extend(marker[i].position);
-                                google.maps.event.addListener(marker[i], 'click', function() {
-                                    cartinfoPickUpPoint(this.pickuppoint);
+                                google.maps.event.addListener(marker[i], 'click', function() {                 
+                                    cartinfoPickUpPoint(this.pickuppoint);              
                                     $('#mapmodals').modal('hide');
-                                });
+                                });  
                             }
-                        }
+                        }                                                
                     } else {
                         bounds.extend(myLatlng);
                     }
-
+                        
                     $('#mapmodals').modal({ show: true });
-                    $('#mapmodals').on('shown.bs.modal', function () {
+                    $('#mapmodals').on('shown.bs.modal', function () {                        
                         if(i == 1) map_resize_one_place(map, (cartinfoPrice().pickuppoints && cartinfoPrice().pickuppoints.length > 0 && cartinfoPrice().pickuppoints[0].location) ? cartinfoPrice().pickuppoints[0].location : myLatlng); else map_resize_multiple_place(map,bounds);
                     });
                 },
-                excursionBookingCloseClick: function (data) {
-                    if (data && data.id) {
-                        cartinfoBookingView(false);
+                excursionBookingCloseClick: function (data) {                    
+                    if (data && data.id) {                      
+                        cartinfoBookingView(false);                 
                         reset(data.id, { date: excursionpricedate() },description().excursion);
-                    }
+                    }                 
                 },
                 navigateBackClick: function() {
                     history.back();
                 },
                 navigateToPriceListClick: function() {
                     doNavigateToPriceList();
-                }
+                }            
             };
         } ();
         ko.applyBindings(site.vm.excursion);
 
-        $(window).resize(function () {
+        $(window).resize(function () {            
             // site.vm.excursion.windowHeight($(window).height()+'px');
         });
 
@@ -1052,20 +1068,20 @@
             }
         });
 
-        $(window).scroll(function () {
+        $(window).scroll(function () {                                     
             var panel = $('#exlistbottompanel');
-
-            if(panel && panel.offset() && ($(window).scrollTop() + $(window).height() + 300 > panel.offset().top + panel.height())) {
-
-                site.vm.excursion.scrollExcursionList();
+          
+            if(panel && panel.offset() && ($(window).scrollTop() + $(window).height() + 300 > panel.offset().top + panel.height())) {                                                             
+               
+                site.vm.excursion.scrollExcursionList();               
             }
-        });
+        });                                                                                       
 
         if( sm && sm.iframe ) {
             sm.iframe.setOnScroll(function() {
-                var panel = $('#exlistbottompanel');
-                if(panel && panel.offset() && ($(window).scrollTop() + $(window).height() + 300 > panel.offset().top + panel.height())) {
-                    site.vm.excursion.scrollExcursionList();
+                var panel = $('#exlistbottompanel');        
+                if(panel && panel.offset() && ($(window).scrollTop() + $(window).height() + 300 > panel.offset().top + panel.height())) {                                                                            
+                    site.vm.excursion.scrollExcursionList();               
                 }
             });
         }
@@ -1078,7 +1094,7 @@
         {
             <text>site.vm.excursion.categoryButtonClick();</text>
         }
-    });
+    });  
 
     var durationToString_Day = '@ExcursionStrings.ResourceManager.Get("DurationDay")',
         durationToString_Days = '@ExcursionStrings.ResourceManager.Get("DurationDays")',
@@ -1096,7 +1112,7 @@
                 result += days + ' ' + (days > 1 ? durationToString_Days : durationToString_Day) + ' ';
                 index = 1;
              }
-
+        
             var timeparts = dayparts[index].split(':');
             var hours = parseInt(timeparts[0]);
             if( hours > 0 ) {
@@ -1116,15 +1132,14 @@
     <div data-bind="if: minPrice" style="text-align:right;" class="bk-excursion-price">               
          <a href="#" data-bind="click: $root.excursionItemBookClick" style="text-decoration:none;">
             <div class="samo_price_up">
-                <div style="float:left;"><img src="@Url.Content("~/images/cartw.png")" /></div>
-                <div><span style="font-size:12px;">@ExcursionStrings.ResourceManager.Get("PriceFrom")</span> <span data-bind="text: minPrice.price"></span>&nbsp;<span data-bind="text: minPrice.currency"></span></div>
+                <div> <span data-bind="text: minPrice.price"></span>&nbsp;<span data-bind="text: minPrice.currency"></span></div>
             </div>        
           </a>
           <div class="samo_price_down" >
                 <!-- ko template: minPrice.priceType == 0 ?  'excursion-price-box-pax' : 'excursion-price-box-service' --><!-- /ko -->
           </div>          
-          <div>
-                <a href="#" data-bind="click: $root.excursionItemBookClick" style="margin-top: 5px;"><b>@ExcursionStrings.ResourceManager.Get("BookNowButton")</b></a> 
+          <div style="margin-top: 10px;">
+                <a href="#" data-bind="click: $root.excursionItemBookClick" style="margin-top: 5px;"><b style="font-size: 20px; color: #5CB85C">@ExcursionStrings.ResourceManager.Get("BookNowButton") >></b></a> 
           </div>
     </div>
 </script>
@@ -1253,21 +1268,19 @@
           
         <div class="row bk-category-list" data-bind="foreach: categories">                
             <div class="col-md-6">
-                <div class="clearfix" style="margin-bottom:10px;"></div>	
-                <div class="media" style="margin-bottom: 15px;">
-                    <span class="pull-left" style="background: #777777;">
-                        <img class="media-object" width="70" height="70" data-bind="attr: { src: imageUrl, title: name }"/>
-                    </span> 
+                 <div class="media" style="margin-bottom: 15px;">
+                    <a href="#" data-bind="click: $root.categoryItemClick" >
+                        <img class="media-object" width="260" height="260" data-bind="attr: { src: imageUrl, title: name }"/>
+                    </a> 
                     <div class="media-body">                                
-                        <a href="#" data-bind="click: $root.categoryItemClick" >
-                            <h3 class="media-heading" style="text-transform: uppercase;" data-bind="text: name"></h3>                  
+                        <a href="#" data-bind="click: $root.categoryItemClick" >                        
+                            <h3 class="media-heading" style="text-transform: uppercase; text-align: center; color: #333; margin-top: 10px;" data-bind="text: name"></h3>                  
                         </a>   
                         <h5 style="color: #777777;" data-bind="text: description"></h5>
-                    </div>                                      
+                    </div>                                     
                 </div>
             </div>
             <!--ko if:$index()%2 !=0 -->
-            <div class="clearfix" style="margin-bottom:15px;"></div>          
             <!--/ko-->                
         </div> 
     </div>
@@ -1277,15 +1290,15 @@
    <div class="row bk-main">            
         <div class="col-lg-12">              
           <h1 class="page-header">@ViewBag.Title</h1>
-          @if (GuestService.Settings.IsShowBreadCrumb)
-          {
-          <ol class="breadcrumb">          
-             <li><a href="@Url.Action("index", "welcome")">@ExcursionStrings.ResourceManager.Get("GuestServiceTitle")</a></li>
-            <li class="active">@ViewBag.Title</li>
-          </ol>
+                         
+          @{
+              <ol class="breadcrumb">          
+                 <li class="eb_link"><a href="@Url.Action("index", "excursion")">@ViewBag.Title</a></li>
+                 <li class="eb_back"><a href="#" data-bind="click: navigateBackClick">@ExcursionStrings.ResourceManager.Get("DetailReturnToExcursionList")</a></li>
+              </ol>
           }
         </div>             
-        <div class="col-lg-12 form-inline">                        
+        <div class="col-lg-12 form-inline" style="display:none">                        
 			<div class="form-group  col-md-6 col-sm-3" style="padding-left:0px; padding-right:5px;">					
 				<input  type="text" placeholder="@ExcursionStrings.ResourceManager.Get("SearchPlaceholder")" class="form-control" data-bind="value: searchTextInput, valueUpdate: 'afterkeydown'">
 			</div>
@@ -1302,7 +1315,7 @@
     </div>  
             
     <div class="bk-category" data-bind="if: viewVisibilityCategorygroups">
-        <h4 style="color:#777777;">@ExcursionStrings.ResourceManager.Get("SearchTitle")</h4>  
+        <h4 style="color:#777777;display:none">@ExcursionStrings.ResourceManager.Get("SearchTitle")</h4>  
 
         <div></div>
 
@@ -1311,8 +1324,35 @@
         </div>
 
         <div data-bind="template: 'excursion-categorygroups'"></div>
+
+        <style>
+            .breadcrumb {
+                display: none !important;
+            }
+
+            .eb_link {
+                display: none !important;
+            }
+
+            .eb_back {
+                display: none !important;
+            }
+
+        </style>
+
+  <!--  <div style="witdh:50%">
+
+        <form method="get" action="@Url.Action("index", "payment")">
+			Check status for the reservation number:
+            <input class="form-control" name="claim" maxlength="250" type="text" style="width: 200px; display:inline" />
+
+            <button type="submit" style="display:inline" class="btn btn-primary" >
+                check status
+            </button>
+	</div>
+-->
     </div> <!-- /visibility category -->   
-      
+      <!--
     <div data-bind="if: viewVisibilityGeographies">
         <div class="row bk-geography" data-bind="if: geographies().length > 0">
 	        <div class="col-lg-12">
@@ -1337,9 +1377,13 @@
                 </div>              
             </div>
         </div>        
-    </div> <!-- /visibility geography -->
+    </div> /visibility geography -->
 
-    <div data-bind="if: viewVisibilityExcursions">             
+    <div data-bind="if: viewVisibilityExcursions">   
+	<style>
+        .eb_back{display:none !important;}
+    	</style>
+          
         <div class="row">
              <div class="col-lg-3 visible-md visible-sm visible-xs col-lg-push-9">                                   
                 <a href="#" onclick="javascript: return show_hide();" id="showFilters" style="outline:0;outline:none;"><h5>@ExcursionStrings.ResourceManager.Get("ExtraFilters")&nbsp;<b class="caret"></b></h5></a>  
@@ -1414,7 +1458,7 @@
                         <div class="row">
                             <div class="col-sm-7 col-md-8" style="min-height:95px;">
                                 <div class="col-xs-5 pull-right visible-xs" data-bind="template: 'excursion-price-box'"> </div>                                                                         
-                                <a href="#" data-bind="click: $root.excursionItemClick" style="color: #333; font-weight:bold;">
+                                <a href="#" data-bind="click: $root.excursionItemClick" style="color: #009AC6; font-weight:bold;">
                                     <h3 class="media-heading" style="font-weight:bold;"  data-bind="text: excursion.name"></h3>
                                 </a> 
                                 <div data-bind="if: excursion.categories" class="bk-excursion-item-category">
@@ -1426,13 +1470,12 @@
                                         </ul>
                                     </div>
                                 </div>
-
-                                <div data-bind="text: excursion.text" class="bk-excursion-text">
+								<div data-bind="text: excursion.text" class="bk-excursion-text">
                                    
                                 </div>
                                 <div data-bind="if: excursion.destinations" class="bk-excursion-item-destination"> 
-                                    <ul data-bind="foreach: destinations" class="csv">
-                                        <!-- css content after -->
+                                    <ul data-bind="foreach: excursion.destinations" class="csv">                                               
+                                    <!-- css content after -->
                                         <li class="pull-left" style="color: #333333; font-weight:bold; text-transform:uppercase;" data-bind="text: name"></li>
                                     </ul>
                                 </div>                                
@@ -1444,7 +1487,7 @@
                                         </span>
                                     </div>                                                
                                 </div>
-                                <div data-bind="if: excursion.departures" class="bk-excursion-item-departure"> 
+                                <div data-bind="if: excursion.departures" class="bk-excursion-item-departure" style="display: none;"> 
                                     <div class="clearfix" style="margin-bottom:0px;"></div>                                                
                                     <span class="pull-left" style="color: #777777;">
                                         <div style="font-size:12px; color:#cccccc;">@ExcursionStrings.ResourceManager.Get("DepartureLabel")</div>
@@ -1452,26 +1495,11 @@
                                                 <span data-bind="text: name"></span>&nbsp;                                                                                                                                                                                
                                         </div>              
                                     </span>
-                                </div>                                                                           
+                                </div>   
+								
                             </div>
                             <div class="col-sm-5 col-md-4  hidden-xs bk-excursion-item-price" data-bind="template: 'excursion-price-box'"></div>
                         </div>
-                        <div class="row">
-                            <div class="col-sm-8 ">
-                                <div data-bind="if: excursion.duration" style="padding: 5px 0 0;" class="bk-excursion-item-duration" >                                                                                        
-                                    <div class="clearfix" style="margin-bottom:0px;"></div>	
-                                    <span class="pull-left" style="background: #cccccc;">
-                                        <img class="media-object" src="@Url.Content("~/images/duration.png")" alt="@ExcursionStrings.ResourceManager.Get("DurationAlt")" />
-                                    </span>&nbsp;<span style="color: #cccccc;" data-bind="text: DurationToString(excursion.duration)"></span>
-                                </div>                                    
-                                <div data-bind="if: excursion.excursionPartner" style="padding: 5px 0 0;" class="bk-excursion-item-partner" >                                                                                        
-                                    <span class="pull-left" style="background: #cccccc;">
-                                        <img class="media-object" src="@Url.Content("~/images/partner.png")" alt="@ExcursionStrings.ResourceManager.Get("PartnerAlt")" />
-                                    </span>&nbsp;<span style="color: #cccccc;" data-bind="text: excursion.excursionPartner.name"></span>
-                                </div> 
-                            </div>   
-                            <div class="clearfix visible-xs" style="margin-bottom:5px;"></div>   
-                        </div>                                                                                                                                                       
                     </div>                          
                     <div class="clearfix"></div>                                                                                                     
                     <div class="col-lg-12">                            
@@ -1533,7 +1561,7 @@
                 <div class="col-lg-4 col-sm-12 pull-right-lg" data-bind="with: description()">  
                     @* RIGHT SIDE *@
  
-                      <h4 class="page-header" style="color:#777777; margin-top:0; margin-bottom:5px;">Информация</h4>
+                      <h4 class="page-header" style="color:#777777; margin-top:0; margin-bottom:5px; display:none;]">Информация</h4>
                         <div data-bind="if: excursion.destinations"  class="bk-excursion-item-destination">                            
                             <div style="color: #777777;margin-bottom: 5px;">
                                 <div style="font-size:12px; color:#cccccc;">@ExcursionStrings.ResourceManager.Get("DescriptionInfo_Direction")</div>
@@ -1586,7 +1614,7 @@
                             </div>
                         </div>     
                                
-                        <div data-bind="if: excursion.excursionPartner" style="padding: 5px 0 0;" class="bk-excursion-item-partner" >                           
+                        <div data-bind="if: excursion.excursionPartner" style="padding: 5px 0 0; display:none;" class="bk-excursion-item-partner" >                           
                             <hr style="margin:5px 0 5px 0; padding:0;"/>
                             <div style="color: #777777;margin-bottom: 5px;">
                                 <div style="font-size:12px; color:#cccccc;">@ExcursionStrings.ResourceManager.Get("DescriptionInfo_Partner")</div>                                                                                        
@@ -1608,7 +1636,7 @@
                     <div data-bind="foreach: description().description" class="bk-description-block">                      
                         <h3 style="text-transform: uppercase; margin-top:0;" data-bind="text: title"></h3>     
                         <div data-bind="if: paragraphs" style="color: #777777;" class="bk-description-text">
-                            <div data-bind="text: paragraphs"></div>              
+                            <div id="ex_description" data-bind="text: paragraphs"></div>              
                         </div>
                         <div data-bind="foreach: sections">                
                             <div class="col-md-12" style="padding-left:0;">
@@ -1688,7 +1716,7 @@
                                     </div>
                                 </td>                                                        
                                 <td style="vertical-align:middle;" class="bk-description-book-button">
-                                    <a href="#" data-bind="click: $root.excursionPriceItemClick">@ExcursionStrings.ResourceManager.Get("BookButton")</a>                                  
+                                    <a href="#" data-bind="click: $root.excursionPriceItemClick" style="color: #5cb85c; font-size: 20px;">@ExcursionStrings.ResourceManager.Get("BookButton") >></a>                                  
                                 </td>
                                 </tr>
                                 <!--/ko-->    
@@ -1698,7 +1726,9 @@
                     <div data-bind="if: pricesNotFound()" class="bk-description-price-not-found">
                         <h3 style="color:#8c8c8c;">@ExcursionStrings.ResourceManager.Get("PriceNotFound")</h3>                
                     </div>                                                                             
-                </div>            
+                </div>       
+
+<!--     
                 <div class="col-lg-8 col-xs-12 pull-left bk-description-map"  style="padding-right:0;">
                     <div class="clearfix" style="margin-top:15px;"></div> 
                     <h3 style="text-transform: uppercase; margin-top:0; float:left;">@ExcursionStrings.ResourceManager.Get("ExcursionRegionTitle")</h3>
@@ -1714,7 +1744,8 @@
                     <div class="clearfix" style="margin-bottom:15px;"></div>                
                     <a href="#" data-bind="click: navigateBackClick">@ExcursionStrings.ResourceManager.Get("DetailReturnToExcursionList")</a>
                     <div class="clearfix" style="margin-bottom:15px;"></div>                   
-                </div>           
+                </div> 
+-->          
                 <!--/ko-->    
 
                 <!--ko if:cartinfoBookingView() == true -->
@@ -1744,7 +1775,7 @@
                                 </ul>
                             </div>                           
                             <table class="samo_table" style=""margin-top:0;> 
-                                <tr style="color:#cccccc;">
+                                <tr style="color:#8c8c8c;">
                                     <td style="padding-bottom:0;">
                                     </td>
                                     <td style="padding-bottom:0;">
@@ -1759,7 +1790,7 @@
                                 </tr>
                                 <!--ko ifnot:price.priceType -->
                                 <tr >
-                                    <td style="color:#cccccc;">
+                                    <td style="color:#8c8c8c;">
                                         @ExcursionStrings.ResourceManager.Get("OrderPriceForPax")
                                     </td>
                                     <td style="font-weight:bold;">
@@ -1775,7 +1806,7 @@
                                 <!--/ko-->
                                 <!--ko if: price.service -->
                                 <tr>
-                                    <td  style="color:#cccccc;">
+                                    <td  style="color:#8c8c8c;">
                                         @ExcursionStrings.ResourceManager.Get("OrderPriceForService")
                                     </td>
                                     <td colspan="3">
@@ -1784,39 +1815,42 @@
                                 </tr>
                                 <!--/ko-->
                                 <tr>
-                                    <td style="vertical-align:middle; color:#cccccc;">
+                                    <td style="vertical-align:middle; color:#8c8c8c;">
                                         @ExcursionStrings.ResourceManager.Get("OrderCount")
                                     </td>
                                     <td >
-                                        <select data-bind="options: $root.cartinfoPaxSelect, optionsText: 'name', optionsValue: 'value', value: $root.cartinfoAdult" class="form-control" style="padding: 6px;">
+										<span id="max_cnt" style='display:none' data-bind="text:price.maxGroup"></span>
+                                        <select onchange="checkNmen()" data-bind="options: $root.cartinfoPaxSelect, optionsText: 'name', optionsValue: 'value', value: $root.cartinfoAdult" class="form-control turist_cnt" style="padding: 6px;">
                                         </select>
                                     </td>
                                     <td >
-                                        <select data-bind="options: $root.cartinfoPaxSelect, optionsText: 'name', optionsValue: 'value', value:$root.cartinfoChild" class="form-control" style="padding: 6px;">
+                                        <select onchange="checkNmen()" data-bind="options: $root.cartinfoPaxSelect, optionsText: 'name', optionsValue: 'value', value:$root.cartinfoChild" class="form-control turist_cnt" style="padding: 6px;">
                                         </select>
                                     </td>
                                     <td >
-                                        <select data-bind="options: $root.cartinfoPaxSelect, optionsText: 'name', optionsValue: 'value', value:$root.cartinfoInfant" class="form-control" style="padding: 6px;">
+                                        <select onchange="checkNmen()" data-bind="options: $root.cartinfoPaxSelect, optionsText: 'name', optionsValue: 'value', value:$root.cartinfoInfant" class="form-control turist_cnt" style="padding: 6px;">
                                         </select>
                                     </td>
-                                </tr>                        
-                               <!-- <tr>
-                                    <td colspan="2" style="color:#cccccc;">
+                                </tr>    
+
+<!--								
+                                <tr>
+                                    <td colspan="2" style="color:#8c8c8c;">
                                         @ExcursionStrings.ResourceManager.Get("OrderName")<br />
                                         <input data-bind="value: $root.cartinfoName" class="form-control" maxlength="250" type="text" style="width: 100%;" />
                                     </td>
-                                    <td colspan="2" style="color:#cccccc;">
+                                    <td colspan="2" style="color:#8c8c8c;">
                                         @ExcursionStrings.ResourceManager.Get("OrderPhone")<br />
                                         <input data-bind="value: $root.cartinfoPhone" class="form-control" maxlength="250" type="text" style="width: 100%;" />
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td colspan="4" style="color:#cccccc;">
+                                    <td colspan="4" style="color:#8c8c8c;">
                                         @ExcursionStrings.ResourceManager.Get("OrderNote")<br />
                                         <input data-bind="value: $root.cartinfoNote" class="form-control" maxlength="250" type="text" style="width: 100%;" />
                                     </td>
                                 </tr>
-                                   -->
+-->
                                 <!--ko if: pickuppoints -->
                                 <tr>
                                     <td style="vertical-align:middle; color:#cccccc;" colspan="4">
@@ -1838,8 +1872,9 @@
                                  <!-- /ko -->
                                 <tr>
                                     <td style="vertical-align:bottom; text-align:right;" colspan="4">
-                                      <a href="#" class="bk-book-add-to-cart" data-bind="click:$root.excursionBookingCloseClick">@ExcursionStrings.ResourceManager.Get("DetailReturnToExcursionDate")</a>   
-                                         <button type="button" class="btn btn-primary" data-bind="click: $root.excursionAddToCartClick">
+										<span class="error_text" style="color:red; display:none">В заказе должно быть не более <span id="max_cnt_text"></span> человек</span>
+                                        <a href="#" class="bk-book-add-to-cart" data-bind="click:$root.excursionBookingCloseClick">@ExcursionStrings.ResourceManager.Get("DetailReturnToExcursionDate")</a>   
+                                         <button  id="add_to_cart_btn" type="button" class="btn btn-primary" data-bind="click: $root.excursionAddToCartClick">
                                          @ExcursionStrings.ResourceManager.Get("OrderAddShopCartButton")</button>                                
                                     </td>
                                 </tr>                              
@@ -1851,7 +1886,53 @@
         </div>
     </div>
 
-    <div data-bind="if: viewVisibilityLoading">             
+    <script>
+			var checkNmen = function(){
+          
+            try 
+            {
+                var maxCnt = 0;
+
+                if($("#max_cnt") != null)
+                    maxCnt = parseInt( $("#max_cnt").html());
+
+				
+                var arr = $('.turist_cnt').toArray();
+
+                var totalCnt = 0;
+
+                for(var i=0; i< arr.length; i++)
+                    totalCnt += parseInt($(arr[i]).val());
+
+			//	alert(maxCnt);alert(totalCnt);
+                if(totalCnt > maxCnt)
+                {
+                    $('.error_text').show();
+                    $('.turist_cnt').addClass("error");
+                    $("#max_cnt_text").html($("#max_cnt").html());
+                    $("#add_to_cart_btn").attr("disabled","true");
+                }
+                else
+                {
+                    $('.error_text').hide();
+                    $('.turist_cnt').removeClass("error");
+                    $("#add_to_cart_btn").removeAttr("disabled");
+                }
+            } 
+            catch (err) 
+            {
+				//alert(err);
+			}
+        };  
+    </script>
+
+    <style>
+        .error {
+            border-color:red;
+        }
+    </style>
+	
+	<div data-bind="if: viewVisibilityLoading">             
         <div data-bind="template: 'excursion-loading'"></div>
     </div>
 
@@ -1907,6 +1988,11 @@
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
 </div>
+<style>
+.readmoretoggle {color:#5cb85c; cursor:pointer}
+</style>
 
-<a class="pull-left" href="@Url.Action("howtopay", "excursion")">howtopay</a>
+<!--<a class="pull-left" href="@Url.Action("howtopay", "excursion")">howtopay</a><br>
  <a class="pull-left" href="@Url.Action("howtobook", "excursion")">howtobook</a>
+
+-->

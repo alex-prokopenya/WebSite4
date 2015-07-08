@@ -25,11 +25,12 @@
     }
     $(document).ready(function (e) {     
         $("a.remove").click(function () {
+ 	    $('#confirmRemove').attr('data-order', $(this).attr('data-order'));
             $('#confirmRemove').modal({ show: true });
         });
         $("#yesConfirm").click(function () {
             $("input[name='@Html.NameFor(m=>m.Form.Action)']").val("remove");
-            $("input[name='@Html.NameFor(m=>m.Form.RemoveOrderId)']").val($(this).attr("order"));
+            $("input[name='@Html.NameFor(m=>m.Form.RemoveOrderId)']").val($("#confirmRemove").attr("data-order"));
             $("form#actionForm").submit();
         });
         $("#confirmRules").click(executeQuery);
@@ -45,7 +46,7 @@
             @if (GuestService.Settings.IsShowBreadCrumb)
             {
             <ol class="breadcrumb">          
-                <li><a href="@Url.Action("index", "welcome")">@BookingStrings.ResourceManager.Get("GuestServiceTitle")</a></li>            
+            <!--    <li><a href="@Url.Action("index", "welcome")">@BookingStrings.ResourceManager.Get("GuestServiceTitle")</a></li>   -->         
                 <li><a href="@Url.Action("index", "excursion")">@BookingStrings.ResourceManager.Get("BookingMenuTitle")</a></li>                  
                 <li class="active">@ViewBag.Title</li>
             </ol>
@@ -97,7 +98,7 @@
                     {
                         <div class="col-lg-12" style="padding-left:95px; margin-bottom:10px; margin-top:10px;">                    
                             <!-- change action here -->
-                            <a href="#" class="remove">@BookingStrings.ResourceManager.Get("RemoveOrderLink")</a>                                                                
+                            <a href="#" class="remove"  data-order="@order.BookingOrder.orderid">@BookingStrings.ResourceManager.Get("RemoveOrderLink")</a>                                                                
                         </div>
                         <div class="modal fade" id="confirmRemove" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">
                           <div class="modal-dialog">
@@ -184,7 +185,7 @@
                     <div class="form-group col-lg-4">
 	                    <label class="control-label" for="@Html.NameFor(m => m.Form.CustomerEmail)">@BookingStrings.ResourceManager.Get("BookingFormMail")</label>
 	                    <div class="controls">
-                            @Html.TextBoxFor(m => m.Form.CustomerEmail, new { @class = "form-control", placeholder = "" })
+                            @Html.TextBoxFor(m => m.Form.CustomerEmail, new { @class = "form-control", placeholder = "", type="email" })
                             @Html.ValidationMessageFor(m => m.Form.CustomerEmail)						        
 	                    </div>
                     </div>
@@ -196,25 +197,23 @@
 	                    </div>
                     </div>
 	                <div class="clearfix"></div>
-<!--
+
                     <div class="form-group col-lg-12">
 	                    <label class="control-label" for="@Html.NameFor(m => m.Form.CustomerAddress)">@BookingStrings.ResourceManager.Get("BookingFormAddress")</label>
 	                    <div class="controls">
-                            @Html.TextBoxFor(m => m.Form.CustomerAddress, new { @class = "form-control", placeholder = "" })
+                            @Html.TextBoxFor(m => m.Form.CustomerAddress, new { @class = "form-control", placeholder = "Hotel and room number" , @Value= !string.IsNullOrEmpty(Request.Params["Form.CustomerAddress"]) ? Request.Params["Form.CustomerAddress"] : System.Web.HttpContext.Current.Session["hotelname"]})
                             @Html.ValidationMessageFor(m => m.Form.CustomerAddress)						        
 	                    </div>
                     </div>
 	                <div class="clearfix"></div>
-
-                    <div class="form-group col-lg-12">
+                    <div class="form-group col-lg-12" style='display:none' >
 	                    <label class="control-label" for="@Html.NameFor(m => m.Form.BookingNote)">@BookingStrings.ResourceManager.Get("BookingFormNote")</label>
 	                    <div class="controls">
-                            @Html.TextBoxFor(m => m.Form.BookingNote, new { @class = "form-control", placeholder = "" })
+                            @Html.TextBoxFor(m => m.Form.BookingNote, new { @class = "form-control", placeholder = "", @Value= System.Web.HttpContext.Current.Session["ordernote"]})
                             @Html.ValidationMessageFor(m => m.Form.BookingNote)						        
 	                    </div>
                     </div>
-
--->
+	
                     <div class="col-lg-12">                                        
                         <div class="checkbox pull-right" style="padding-left:0;">
                             <div style="float:right;">@Html.CheckBoxFor(m => m.Form.RulesAccepted, new { @style = "margin-right:5px;" })<label for="Form_RulesAccepted"></label>@BookingStrings.ResourceManager.Get("BookingAgreementConfirmMessage_1")&nbsp;<a href="#" id="confirmRules">@BookingStrings.ResourceManager.Get("BookingAgreementConfirmMessage_2")</a></div>
@@ -256,6 +255,4 @@
             }
         }
     </div>
-</div>
-
-            
+</div>           

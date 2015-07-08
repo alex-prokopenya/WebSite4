@@ -279,8 +279,6 @@
             }
             this.$wrapper.append($(self._template.listItem).append(this.$leftNav));
 
-
-
             // Items
             $.each(data.items, function (id, item) {                
                 var $a = $(self._template.dateItem)
@@ -294,8 +292,6 @@
                 if (item.isSelected && self.options.highlightSelectedDate) {
                     $a.addClass('dp-selected');
                 }
-
-
                 if (item.isToday && self.options.highlightToday && (!item.isStopSale && !item.allClosed)) {
                     $a.addClass('dp-today');
                 }

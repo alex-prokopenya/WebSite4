@@ -21,11 +21,11 @@ function executeQuery() {
                     } else {
                         <text>$('#orderPayBtn').attr('href','@Url.Action("index","payment")?claim='+parseInt(data.reservation));</text>
                     }
-                    $('#orderResult div#okOrderResult').show();             
-                    $('#orderResult').modal({ show: true });
-                    $('#orderResult').on('hidden.bs.modal', function () {
+                 //   $('#orderResult div#okOrderResult').show();             
+                  //  $('#orderResult').modal({ show: true });
+                 //   $('#orderResult').on('hidden.bs.modal', function () {
                         window.location.replace($('#orderPayBtn').attr('href'));       
-                    });
+                   // });
                 } else {
                     $('#orderResult div#errorOrderList').html("<p>"+data.errors+"</p>");             
                     $('#orderResult div#errorOrderResult').show();             

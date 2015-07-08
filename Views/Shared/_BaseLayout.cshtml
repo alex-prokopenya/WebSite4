@@ -9,64 +9,43 @@
     <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
     @Styles.Render(string.Format("~/css/{0}/bootstrap.css", GuestService.Code.HttpPreferences.Current.VisualTheme))  
     @Styles.Render("~/css/datepicker.css")
-
-      @Styles.Render("~/css/keyboard.css")
+	
+	   @Styles.Render("~/css/keyboard.css")
       @Styles.Render("~/css/jquery-ui.min.css")
-
+	  
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>      
           @Scripts.Render("~/js/html5shiv.js")
           @Scripts.Render("~/js/respond.js")      
-
-     
-         
     <![endif]-->
     <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-      @Scripts.Render("~/js/jquery-1.9.1.js")
-      @Scripts.Render("~/js/jquery.keyboard.js")
-
+    @Scripts.Render("~/js/jquery-1.9.1.js")
+	    @Scripts.Render("~/js/jquery.keyboard.js")
     <script type="text/javascript">
         var baseimageurl = '@Url.Content("~/images/")';  
     </script>
-      <style>
+    <style>
          nav.navbar
          {
                 position: fixed;
                 width: 100%;
                 z-index: 100; 
           }
-          .dp-no-select {
+	     .dp-no-select {
               background:#efefef!important;
               color:#ccc!important
           }
       </style>
-
-      <script>
+  <script>
              var time = new Date().getTime();
 
              $(document).ready(function () {
 
-                 $(document.body).keypress(function (e) {
-                     time = new Date().getTime();
-                 });
-                 $(document.body).mousemove(function (e) {
-                     time = new Date().getTime();
-                 });
-
-                 function refresh() {
-                     if (new Date().getTime() - time >= 60000)
-                         window.location.href = '@Url.Action("index", "excursion")';
-                     else
-                         setTimeout(refresh, 10000);
-                 }
-
-                 setTimeout(refresh, 10000);
-
-               
-                 $('#Form_CustomerEmail, #Form_CustomerName, #Form_CustomerMobile').focus(function () {
+              
+                 $('#Form_CustomerEmail, #Form_CustomerName, #Form_CustomerMobile, #Form_CustomerAddress').bind('click focus',function () {
                      
                      $("#" + $(this).attr('id') + "_keyboard").css('top', Math.round($(this).offset().top) + 'px');
                      $("#" + $(this).attr('id') + "_keyboard").css('left', Math.round($(this).offset().left) + 'px');
@@ -90,25 +69,61 @@
 
                   layout: 'custom',
                   customLayout: {
-                     
+                      
                       'default': [
                           '1 2 3 4 5 6 7 8 9 0 {bksp}',
                           'Q W E R T Y U I O P',
                           'A S D F G H J K L ',
-                          'Z X C V B N M \u0040 . _ -',
+                          'Z X C V B N M + . _ -',
                           '{space} {accept}'
                       ]
                   }
 
               };
 
-              $('#Form_CustomerEmail, #Form_CustomerName, #Form_CustomerMobile').keyboard(keyboard_params).removeClass("ui-widget-content");
-              $('#Form_CustomerEmail, #Form_CustomerName, #Form_CustomerMobile').keyboard(keyboard_params).removeClass("ui-widget-content");
+ 	          var email_params = {
+                              position:{top:50, left:10},
+                             display: {
+		            'bksp'   : '\u2190  Bksp',
+		            'enter'  : 'return',
+		            'default': 'ABC',
+		            'meta1'  : '.?123',
+		            'meta2'  : '#+=',
+		            'accept' : 'accept'
+	            },
 
+	            layout: 'custom',
+	            customLayout: {
+		            'default': [
+			            'q w e r t y u i o p {bksp}',
+			            'a s d f g h j k l ',
+			            '{s} z x c v b n m \u0040 . {s}',
+			            '{meta1} {space} _ - {accept}'
+		            ],
+		            'shift': [
+			            'Q W E R T Y U I O P {bksp}',
+			            'A S D F G H J K L ',
+			            '{s} Z X C V B N M \u0040 . {s}',
+			            '{meta1} {space} _ - {accept}'
+		            ],
+		            'meta1': [
+			            '1 2 3 4 5 6 7 8 9 0 {bksp}',
+			            '` | { } % ^ * / \' ',
+			            '{meta2} $ & ~ # = + . {meta2}',
+			            '{default} {space} ! ? {accept}'
+		            ],
+		            'meta2': [
+			            '[ ] { } \u2039 \u203a ^ * " , {bksp}',
+			            '\\ | / < > $ \u00a3 \u00a5 \u2022 ',
+			            '{meta1} \u20ac & ~ # = + . {meta1}',
+			            '{default} {space} ! ? {accept}'
+		            ]
+	            }
+
+              };
           };
 
           setTimeout(init, 100);
-
 
           function printIt(printThis) {
               var win = window.open();
@@ -121,14 +136,13 @@
               win.print();
               win.close();
           }
-
       </script>
-    
+
     @RenderSection("head_styles", required: false)
     @RenderSection("head_scripts", required: false)
   </head>
   <body>  
-    
+  
     @{ Html.RenderAction("PageSuperHeader", "customization"); }
     @{ Html.RenderPartial(@"Controls\NavLanguageLogout"); }
     @{ Html.RenderAction("PageSubHeader", "customization"); }
@@ -144,9 +158,7 @@
                 @{ Html.RenderAction("PageFooter", "customization"); }
             </div>   
         </div>
-
     </div>
 
-      <input type="button" value="Back" onclick="history.go(-1);">
   </body>
 </html>

@@ -1,0 +1,17 @@
+﻿@model GuestService.Models.Payment.ProcessingContext
+
+@{
+    ViewBag.Title = PaymentStrings.ResourceManager.Get("PaymentTitle");
+}
+
+@section scripts {
+    <script type="text/javascript">
+        $(document).ready(function () { location.href = "@Model.RedirectUrl".replace("&amp;","&"); });
+    </script>
+}
+
+<div class="container">
+<br><br><br>
+    <h1>Going to PayPal...</h1>
+  
+</div>

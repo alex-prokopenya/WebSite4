@@ -1,0 +1,102 @@
+﻿@model GuestService.Models.Payment.ProcessingContext
+
+@{
+    ViewBag.Title = PaymentStrings.ResourceManager.Get("PaymentTitle");
+}
+
+@section scripts {
+    <script type="text/javascript">
+        $(document).ready(function () { setTimeout(function () { $("form[name='payment_form']").submit(); }, 100); });
+    </script>
+}
+
+<div class="container">
+   <br>   <br>   <br>   <br>
+    <div class="row">
+    @if (Model.PaymentMode != null && Model.BeforePaymentResult != null && Model.PaymentMode.payrest != null)
+    {
+
+        string secretKey = System.Configuration.ConfigurationManager.AppSettings["payuPassword"];
+
+        #region addParams
+        var paramsList = new Dictionary<string, string>();
+        paramsList.Add("MERCHANT", System.Configuration.ConfigurationManager.AppSettings["payuShopId"]);
+        paramsList.Add("ORDER_REF", Model.BeforePaymentResult.invoiceNumber);
+        paramsList.Add("ORDER_DATE", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+
+        paramsList.Add("ORDER_PNAME[]", "ExcGo Order #" + Model.Reservation.claimId.ToString());
+        paramsList.Add("ORDER_PCODE[]", Model.Reservation.claimId.ToString());
+        paramsList.Add("ORDER_PRICE[]", Model.PaymentMode.payrest.total.ToString("#0.00", System.Globalization.NumberFormatInfo.InvariantInfo));
+        paramsList.Add("ORDER_QTY[]", "1");
+        paramsList.Add("ORDER_VAT[]", "0");
+        paramsList.Add("PAY_METHOD", "ccvisamc");
+        paramsList.Add("PRICES_CURRENCY", "EUR");
+        paramsList.Add("TESTORDER", "FALSE");
+        paramsList.Add("LANGUAGE", Sm.System.Mvc.Language.UrlLanguage.CurrentLanguage.ToUpper() != "RU" ? "EN" : "RU");
+
+        #endregion
+
+        #region generateBaseString
+        string[] keys = new string[] {  "MERCHANT","ORDER_REF","ORDER_DATE",
+                                            "ORDER_PNAME[]","ORDER_PCODE[]","ORDER_PINFO[]","ORDER_PRICE[]",
+                                            "ORDER_QTY[]","ORDER_VAT[]","ORDER_SHIPPING","PRICES_CURRENCY",
+                                            "PAY_METHOD", "ORDER_PRICE_TYPE[]" };
+
+        string base_str = "";
+
+        foreach (string key in keys)
+        {
+            try
+            {
+                byte[] bytes = System.Text.UTF8Encoding.UTF8.GetBytes(paramsList[key]);
+
+                base_str += "" + bytes.Length + paramsList[key];
+            }
+            catch (Exception ex)
+            {
+                // Log.Logger.WriteToLog("exception for key " + key);
+                // throw ex;
+            }
+        }
+        #endregion
+
+        secretKey = secretKey.Replace("&amp;","&");
+    
+        byte[] keyInBytes = System.Text.UTF8Encoding.UTF8.GetBytes(secretKey);
+        byte[] payloadInBytes = System.Text.UTF8Encoding.UTF8.GetBytes(base_str);
+
+        var md5 = new System.Security.Cryptography.HMACMD5(keyInBytes);
+        byte[] hash = md5.ComputeHash(payloadInBytes);
+
+        var result = BitConverter.ToString(hash).Replace("-", string.Empty);
+
+        paramsList.Add("ORDER_HASH", result.ToLower());
+
+
+                <div class="col-lg-12">
+                    <h1 class="page-header">Going to PayU...</h1>
+                </div>
+          
+
+                <form id="payment_form" name="payment_form" action="https://secure.payu.ru/order/lu.php" method="POST">
+                
+                    @foreach (string key in paramsList.Keys)
+                    {
+                        <input type="hidden" name="@key" value="@paramsList[key]"> 
+                    }
+
+                    <input name="BACK_REF" type="hidden" value="@(new Uri(Request.BaseServerAddress(), Url.Action("processingresult", new { id = "payu", order = Model.Reservation.claimId.ToString(), invoice = Model.BeforePaymentResult.invoiceNumber})).ToString())" id="BACK_REF">
+                    <input name="BILL_FNAME" type="hidden" value="@Model.Reservation.customer.name" id="BILL_FNAME">
+                    <input name="BILL_LNAME" type="hidden" value="-" id="BILL_LNAME">
+                    <input name="BILL_EMAIL" type="hidden" value="@Model.Reservation.customer.mail" id="BILL_EMAIL">
+                    <input name="BILL_PHONE" type="hidden" value="@Model.Reservation.customer.phone" id="BILL_PHONE">
+                    <input name="AUTOMODE" type="hidden" value="1">
+                   
+                </form>
+        }
+        else
+        {
+            <h2>@PaymentStrings.ResourceManager.Get("PaymentCannotPayOrder")</h2>
+        }
+    </div>
+</div>
