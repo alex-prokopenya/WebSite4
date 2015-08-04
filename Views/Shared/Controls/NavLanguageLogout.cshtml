@@ -117,18 +117,24 @@
             @{
                 var languages = Sm.System.Mvc.Language.UrlLanguage.SupportedLanguages;
                 var language = Sm.System.Mvc.Language.UrlLanguage.CurrentLanguage;
-                var values = Sm.System.Mvc.HttpRequestBaseExtensions.QueryStringAsRouteValues(Request);   
+                var values = Sm.System.Mvc.HttpRequestBaseExtensions.QueryStringAsRouteValues(Request);
+
+                var languagesDict = new System.Collections.Generic.Dictionary<string, string>();
+                languagesDict.Add("RU","Русский");
+                languagesDict.Add("EN", "English");
+                languagesDict.Add("EL", "Elenika");
+
                 if (languages != null && languages.Length > 1)
                 {
                 <li class="dropdown bk-navbar-language">
-                    <a data-toggle="dropdown" class="dropdown-toggle"  href="#"><img src="@Url.Content(string.Format("~/images/flags/{0}.png", language))" />&nbsp;<b class="caret"></b></a>
+                    <a data-toggle="dropdown" class="dropdown-toggle"  href="#">@languagesDict[language] &nbsp;<b class="caret"></b></a>
                         <ul class="dropdown-menu" style="min-width:0;">
                         @foreach (var lang in languages.Where(m => m != language))
                         {
                             values["language"] = lang;
                             <li>
                                 <a href="@Url.RouteUrl(values)">
-                                    <img src="@Url.Content(string.Format("~/images/flags/{0}.png", lang))" />
+                                    @languagesDict[lang] 
                                 </a>
                             </li>
                         }

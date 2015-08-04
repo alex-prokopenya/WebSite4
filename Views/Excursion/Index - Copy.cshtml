@@ -416,7 +416,8 @@
                 return $.extend({
                     imageUrl: excursionImageBaseUrl.replace('.id.', d.excursion.id),
                     largeImageUrl: excursionLargeImageBaseUrl.replace('.id.', d.excursion.id),
-                    mainImageUrl: excursionLargeImageBaseUrl.replace('.id.', d.excursion.id).replace('.i.', 0)
+                    mainImageUrl: excursionLargeImageBaseUrl.replace('.id.', d.excursion.id).replace('.i.', 0),
+                    excId:  d.excursion.id,
                 }, d || {});
             },
             doDepartureInitialize = function(force) {
